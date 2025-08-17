@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap');
+
+body {
+  background-color: #fdf6f0;
+  font-family: 'Nanum Brush Script', cursive;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+.register-container {
+  background-color: white;
+  padding: 40px 50px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  max-width: 100%;
+}
+
+h2 {
+  text-align: center;
+  font-size: 2.2em;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 1.1em;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.2em;
+  color: #444;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  font-size: 1em;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #ffc4b2;
+}
+
+.help-text {
+  font-size: 0.85em;
+  color: #888;
+  margin-top: 5px;
+}
+
+.password-requirements {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-radius: 6px;
+}
+
+.requirement {
+  font-size: 0.85em;
+  margin-bottom: 5px;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.requirement.valid {
+  color: #4CAF50;
+}
+
+.requirement.invalid {
+  color: #f44336;
+}
+
+.password-match {
+  font-size: 0.85em;
+  margin-top: 5px;
+  transition: color 0.3s ease;
+}
+
+.password-match.valid {
+  color: #4CAF50;
+}
+
+.password-match.invalid {
+  color: #f44336;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #999;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+}
+
+.submit-btn.active {
+  background-color: #ffc4b2;
+  color: white;
+  cursor: pointer;
+}
+
+.submit-btn.active:hover {
+  background-color: #ffa894;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.login-link a {
+  color: #ffc4b2;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+  .register-container {
+    padding: 30px 20px;
+    width: 100%;
+  }
+  
+  h2 {
+    font-size: 1.8em;
+  }
+  
+  .subtitle {
+    font-size: 1em;
+  }
+} 

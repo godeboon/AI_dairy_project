@@ -1,0 +1,79 @@
+body {
+  background-color: #fdf6f0;
+}
+
+.hero {
+  text-align: center;
+  margin-top: 80px;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 40px;
+  border-radius: 12px;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero h2 {
+  font-size: 2.2em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.subtitle {
+  font-size: 1.1em;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.start-btn {
+  background-color: #ffccbc;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.start-btn:hover {
+  background-color: #ffab91;
+}
+
+.features {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 60px 20px;
+  flex-wrap: wrap;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  padding: 30px;
+  width: 260px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-card .emoji {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.feature-card h3 {
+  margin: 10px 0;
+  font-size: 1.3em;
+  color: #333;
+}
+
+.feature-card p {
+  color: #666;
+  font-size: 1em;
+  margin: 0;
+} 

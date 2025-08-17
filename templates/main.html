@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="/static/css/main.css">
+{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <h2>당신의 감정을 담은 공간, 지금 시작해보세요</h2>
+    <p class="subtitle">AI와 함께 나를 돌아보는 감성 다이어리 서비스</p>
+    <button class="start-btn">나의 공간 입장하기</button>
+  </section>
+
+  <section class="features">
+    <div class="feature-card">
+      <div class="emoji">📓</div>
+      <h3>감정 일기</h3>
+      <p>GPT와 대화하며 감정을 자연스럽게 기록해요.</p>
+    </div>
+    <div class="feature-card">
+      <div class="emoji">📊</div>
+      <h3>감정 그래프</h3>
+      <p>시간 흐름에 따라 감정의 변화가 시각화돼요.</p>
+    </div>
+    <div class="feature-card">
+      <div class="emoji">🌌</div>
+      <h3>감성 공간</h3>
+      <p>하늘, 방, 정원 등 나만의 공간을 꾸며요.</p>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="/static/js/main.js"></script>
+{% endblock %} 

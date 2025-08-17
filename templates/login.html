@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <link rel="stylesheet" href="/static/css/login_css.css">
+</head>
+<body>
+  <div class="login-container">
+    <h2>당신의 공간에 들어가기</h2>
+    <form id="loginForm">
+      <label>아이디
+        <input type="text" name="username" required>
+      </label>
+      <label>비밀번호
+        <input type="password" name="password" required>
+      </label>
+
+      <div class="options">
+        <label><input type="checkbox" id="rememberId"> 아이디 저장</label>
+        <a href="/register" style="color: #999; text-decoration: none;">회원가입하기</a>
+      </div>
+
+      <button type="submit">로그인</button>
+      <div class="message">AI 감정 다이어리와 함께 나를 들여다보세요</div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = {
+        username: formData.get("username"),
+        password: formData.get("password")
+      };
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const text = await response.text();
+
+        let result;
+        try {
+          result = JSON.parse(text);
+        } catch (jsonErr) {
+          throw new Error(text);
+        }
+
+        if (!response.ok) {
+          alert(result.detail || "로그인 실패");
+        } else {
+          alert("로그인 성공!");
+          localStorage.clear();
+          localStorage.setItem("access_token", result.access_token);
+          localStorage.setItem("nickname", result.nickname);
+          localStorage.setItem("user_id", result.user_id);
+          if (document.getElementById("rememberId").checked) {
+            localStorage.setItem("remembered_id", data.username);
+          }
+          window.location.href = "/";
+        }
+
+      } catch (err) {
+        alert("서버 오류: " + err.message);
+      }
+    });
+
+    // 저장된 아이디 자동 입력
+    window.onload = () => {
+      const savedId = localStorage.getItem("remembered_id");
+      if (savedId) {
+        document.querySelector('input[name="username"]').value = savedId;
+        document.getElementById("rememberId").checked = true;
+      }
+    };
+  </script>
+</body>
+</html>
+

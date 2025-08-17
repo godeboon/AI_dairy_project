@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>감성 다이어리</title>
+  <link rel="stylesheet" href="/static/mypage_css.css">
+  <link rel="stylesheet" href="/static/chat.css">
+</head>
+<body>
+  <!-- 로그인 전 메인 페이지 -->
+  <header>
+    <div class="header-left">
+      <h1>당곰다, 당신의 공간을 담다</h1>
+    </div>
+    <nav class="nav-links">
+      <a href="#">홈</a>
+      <a href="#">서비스 소개</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+    <div class="header-right">
+      <!-- 비로그인 상태 -->
+      <div id="guest-header">
+        <button class="login-btn" onclick="window.location.href='/login'">로그인</button>
+      </div>
+      
+      <!-- 로그인 상태 -->
+      <div id="user-header" style="display: none;">
+        <div class="welcome-message" id="welcome-message"></div>
+        <button class="logout-btn" onclick="logout()">로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>당신의 감정을 담은 공간, 지금 시작해보세요</h2>
+      <p class="subtitle">AI와 함께 나를 돌아보는 감성 다이어리 서비스</p>
+      <button class="start-btn" onclick="openMySpace()">나의 공간 입장하기</button>
+    </section>
+
+    <section class="features">
+      <div class="feature-card">
+        <div class="emoji">📓</div>
+        <h3>감정 일기</h3>
+        <p>GPT와 대화하며 감정을 자연스럽게 기록해요.</p>
+      </div>
+      <div class="feature-card">
+        <div class="emoji">📊</div>
+        <h3>감정 그래프</h3>
+        <p>시간 흐름에 따라 감정의 변화가 시각화돼요.</p>
+      </div>
+      <div class="feature-card">
+        <div class="emoji">🌌</div>
+        <h3>감성 공간</h3>
+        <p>하늘, 방, 정원 등 나만의 공간을 꾸며요.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 감성 다이어리 | 당신의 감정을 담다.</p>
+  </footer>
+
+  <!-- 나의 공간 팝업창 -->
+  <div id="mySpaceModal" class="modal">
+    <div class="modal-content">
+      <!-- 닫기 버튼 -->
+      <div class="close-btn" onclick="closeMySpace()">×</div>
+      
+      <!-- 메인 컨텐츠 영역 -->
+      <div class="modal-main">
+        <!-- 상단 메인 탭 -->
+        <div class="main-tabs">
+          <button class="main-tab active" onclick="switchMainTab('chat')">대화하기</button>
+          <button class="main-tab" onclick="switchMainTab('study')">서재</button>
+          <button class="main-tab" onclick="switchMainTab('constellation')">별자리</button>
+          <button class="main-tab" onclick="switchMainTab('garden')">텃밭</button>
+        </div>
+        
+        <!-- 콘텐츠 영역 -->
+        <div class="content-area">
+          <!-- 왼쪽 서브 탭 -->
+          <div class="left-sidebar">
+            <div class="sub-tabs" id="subTabs">
+              <!-- 서브 탭들은 동적으로 생성됨 -->
+            </div>
+          </div>
+          
+          <!-- 메인 콘텐츠 -->
+          <div class="main-content">
+            <!-- 대화하기 영역 -->
+            <div id="chat-content" class="content-section active">
+              <div id="chat-container">
+                <!-- chat.html 내용이 여기에 로드됨 -->
+              </div>
+            </div>
+            
+            <!-- 서재 영역 -->
+            <div id="study-content" class="content-section">
+              <div class="study-top">
+                <!-- 서재 공간 (상단) -->
+                <div class="study-space">
+                  <img src="/static/서재_2d.jpg" alt="나의 서재" class="study-image">
+                </div>
+              </div>
+              <div class="study-bottom">
+                <!-- 퀘스트 창 (하단) -->
+                <div class="quest-window">
+                  <h3>오늘의 퀘스트</h3>
+                  <!-- 퀘스트 내용 -->
+                </div>
+              </div>
+            </div>
+            
+            <!-- 별자리 영역 -->
+            <div id="constellation-content" class="content-section">
+              <h3>나의 별자리</h3>
+              <!-- 별자리 내용 -->
+            </div>
+            
+            <!-- 텃밭 영역 -->
+            <div id="garden-content" class="content-section">
+              <h3>나의 텃밭</h3>
+              <!-- 텃밭 내용 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 로그인 상태 확인 및 헤더 변경
+    function checkLoginStatus() {
+      const token = localStorage.getItem("access_token");
+      const nickname = localStorage.getItem("nickname");
+      
+      if (token && nickname) {
+        // 로그인 상태: 헤더 변경
+        document.getElementById('guest-header').style.display = 'none';
+        document.getElementById('user-header').style.display = 'block';
+        document.getElementById('welcome-message').textContent = `${nickname}님 환영합니다`;
+      } else {
+        // 비로그인 상태: 기존 헤더 유지
+        document.getElementById('guest-header').style.display = 'block';
+        document.getElementById('user-header').style.display = 'none';
+      }
+    }
+
+    // 로그아웃 요청
+    async function logout() {
+      const user_id = localStorage.getItem("user_id");
+      
+      try {
+        // 서버에 로그아웃 요청
+        if (user_id) {
+          await fetch("/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: parseInt(user_id) })
+          });
+        }
+        
+        // localStorage 정리
+        localStorage.clear();
+        
+        // 헤더 변경
+        checkLoginStatus();
+        
+      } catch (error) {
+        console.error("로그아웃 오류:", error);
+        // 오류가 발생해도 localStorage는 정리
+        localStorage.clear();
+        checkLoginStatus();
+      }
+    }
+
+    // 나의 공간 팝업창 열기
+    async function openMySpace() {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        // 채팅 이벤트 로그
+        await fetch("/chat/open", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        // 팝업창 열기
+        document.getElementById('mySpaceModal').style.display = 'flex';
+        // 내부 상태 초기화
+        document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+        document.getElementById('chat-container').innerHTML = '';
+        updateSubTabs(null); // 알림만 보이게
+      } else {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/login";
+      }
+    }
+
+    // 팝업창 닫기
+    function closeMySpace() {
+      document.getElementById('mySpaceModal').style.display = 'none';
+      // 내부 상태 초기화
+      document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+      document.getElementById('chat-container').innerHTML = '';
+      updateSubTabs(null); // 알림만 보이게
+    }
+
+    // 메인 탭 전환
+    function switchMainTab(tabName, event) {
+      // 모든 메인 탭 비활성화
+      document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+      // 모든 콘텐츠 섹션 숨기기
+      document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+      // 선택된 탭 활성화
+      if (event && event.target) {
+        event.target.classList.add('active');
+      } else {
+        // 직접 호출 시 첫 번째 해당 탭 버튼을 찾아서 active
+        const btn = document.querySelector(`.main-tab[onclick*="${tabName}"]`);
+        if (btn) btn.classList.add('active');
+      }
+      // 해당 콘텐츠 표시
+      document.getElementById(`${tabName}-content`).classList.add('active');
+      // 서브 탭 업데이트
+      updateSubTabs(tabName);
+      // 대화하기 탭이면 chat.html 로드
+      if (tabName === 'chat') loadChatContent();
+    }
+
+    // chat.html 내용 로드
+    async function loadChatContent() {
+      const chatContainer = document.getElementById('chat-container');
+      try {
+        const response = await fetch('/chatroom');
+        const chatHTML = await response.text();
+        // HTML에서 body 내용만 추출
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(chatHTML, 'text/html');
+        const chatBody = doc.querySelector('body');
+        // 기존 내용 제거하고 새로운 내용 삽입
+        chatContainer.innerHTML = chatBody.innerHTML;
+        // chat.js 동적 로드
+        if (!window._chatJsLoaded) {
+          const script = document.createElement('script');
+          script.src = '/static/chat.js';
+          script.onload = function() {
+            window._chatJsLoaded = true;
+            if (window.initChatUI) window.initChatUI();
+          };
+          document.body.appendChild(script);
+        } else {
+          if (window.initChatUI) window.initChatUI();
+        }
+      } catch (error) {
+        console.error('채팅 내용 로드 오류:', error);
+        chatContainer.innerHTML = '<p>채팅을 불러오는 중 오류가 발생했습니다.</p>';
+      }
+    }
+
+    // 서브 탭 업데이트
+    function updateSubTabs(mainTab) {
+      const subTabsContainer = document.getElementById('subTabs');
+      subTabsContainer.innerHTML = '';
+      // 아무 탭도 선택되지 않은 경우(초기화)
+      if (!mainTab) {
+        subTabsContainer.innerHTML = `<div class="sub-tab active">알림</div>`;
+        return;
+      }
+      switch(mainTab) {
+        case 'chat':
+          subTabsContainer.innerHTML = `
+            <div class="sub-tab active">알림</div>
+            <div class="sub-tab" onclick="switchSubTab('chat')">대화하기</div>
+            <div class="sub-tab" onclick="switchSubTab('chat-list')">채팅목록</div>
+          `;
+          break;
+        case 'study':
+          subTabsContainer.innerHTML = `
+            <div class="sub-tab active">알림</div>
+            <div class="sub-tab" onclick="switchSubTab('diary')">일기 생성하기</div>
+            <div class="sub-tab" onclick="switchSubTab('graph')">감성그래프</div>
+            <div class="sub-tab" onclick="switchSubTab('keyword')">하루 키워드</div>
+            <div class="sub-tab" onclick="switchSubTab('music')">음악추천</div>
+          `;
+          break;
+        case 'constellation':
+          subTabsContainer.innerHTML = `
+            <div class="sub-tab active">알림</div>
+            <div class="sub-tab" onclick="switchSubTab('constellation-detail')">별자리 상세</div>
+          `;
+          break;
+        case 'garden':
+          subTabsContainer.innerHTML = `
+            <div class="sub-tab active">알림</div>
+            <div class="sub-tab" onclick="switchSubTab('plant-seed')">씨앗 심기</div>
+            <div class="sub-tab" onclick="switchSubTab('grow-seed')">씨앗 가꾸기</div>
+          `;
+          break;
+      }
+    }
+
+    // 서브 탭 전환
+    function switchSubTab(subTabName) {
+      // 모든 서브 탭 비활성화
+      document.querySelectorAll('.sub-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // 선택된 서브 탭 활성화
+      event.target.classList.add('active');
+      
+      // 서브 탭별 콘텐츠 처리
+      console.log(`서브 탭 전환: ${subTabName}`);
+      
+      if (subTabName === 'chat-list') {
+        loadChatListContent();
+      } else if (subTabName === 'chat') {
+        loadChatContent();
+      }
+    }
+    
+    // 채팅 목록 콘텐츠 로드
+    async function loadChatListContent() {
+      const chatContainer = document.getElementById('chat-container');
+      try {
+        const response = await fetch('/components/chatting/sub_chat_list.html');
+        const chatListHTML = await response.text();
+        chatContainer.innerHTML = chatListHTML;
+        
+        // sub_chat_list.css 로드
+        if (!document.querySelector('link[href*="sub_chat_list.css"]')) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = '/static/css/components/chatting/sub_chat_list.css';
+          document.head.appendChild(link);
+        }
+        
+        // sub_chat_list.js 로드
+        if (!window._chatListJsLoaded) {
+          const script = document.createElement('script');
+          script.src = '/static/js/components/chatting/sub_chat_list.js';
+          script.onload = function() {
+            window._chatListJsLoaded = true;
+          };
+          document.body.appendChild(script);
+        }
+      } catch (error) {
+        console.error('채팅 목록 로드 오류:', error);
+        chatContainer.innerHTML = '<p>채팅 목록을 불러오는 중 오류가 발생했습니다.</p>';
+      }
+    }
+
+    // 페이지 로드 시 로그인 상태 확인
+    window.onload = function () {
+      checkLoginStatus();
+    };
+
+    // ESC 키로 팝업창 닫기
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeMySpace();
+      }
+    });
+  </script>
+</body>
+</html>

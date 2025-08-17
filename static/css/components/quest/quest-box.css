@@ -1,0 +1,132 @@
+/* ===== 퀘스트 박스 공통 컴포넌트 ===== */
+
+/* 기본 퀘스트 박스 스타일 */
+.quest-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #FFF3EF;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  border: 1px solid #FFD4C7;
+  transition: all 0.3s ease;
+}
+
+.quest-content {
+  flex-grow: 1;
+}
+
+.quest-name {
+  font-size: 1.1em;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #ff7043;
+  transition: color 0.3s ease;
+}
+
+.quest-desc {
+  font-size: 0.98em;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.quest-action {
+  background-color: #FF8E70;
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+/* ===== 비활성화 상태 (CSS 클래스로 처리) =====
+.quest-action.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+} */
+
+
+/* ===== 비활성화된 퀘스트 버튼 스타일 (클릭 가능) ===== */
+.quest-action.disabled {
+  background-color: #E0E0E0;  /* 연한 회색 배경 */
+  color: #9E9E9E;             /* 어두운 회색 텍스트 */
+  cursor: pointer;             /* 클릭 가능한 커서 */
+  border: 1px solid #D0D0D0;  /* 연한 회색 테두리 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);  /* 약간의 그림자 */
+  transition: all 0.3s ease;
+}
+
+/* 비활성화된 버튼 호버 효과 */
+.quest-action.disabled:hover {
+  background-color: #D5D5D5;  /* 호버 시 약간 어두워짐 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);  /* 호버 시 그림자 강화 */
+}
+
+
+
+
+/* ===== 비활성화 상태  ===== */
+.quest-box.locked {
+  opacity: 0.5;
+  position: relative;
+}
+
+/* ===== 활성화 상태 ===== */
+.quest-box.active {
+  border-color: transparent; /* 테두리 제거 */
+  box-shadow: 
+    0 0 8px rgba(255, 182, 193, 0.3),
+    0 0 16px rgba(255, 182, 193, 0.2);
+  background-color: #fff8f5; /* 연한 살구색 배경 */
+  animation: quest-glow 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.quest-box.active .quest-name {
+  color: #ff7043; /* 기존 색상 유지 */
+  font-weight: 600;
+}
+
+.quest-box.active .quest-desc {
+  color: #666; /* 기존 색상 유지 */
+  opacity: 0.8;
+}
+
+/* 연한 살구색 반짝임 애니메이션 (테두리 없음) */
+@keyframes quest-glow {
+  0% {
+    box-shadow: 
+      0 0 8px rgba(255, 182, 193, 0.3),
+      0 0 16px rgba(255, 182, 193, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 0 12px rgba(255, 182, 193, 0.4),
+      0 0 24px rgba(255, 182, 193, 0.3),
+      0 0 36px rgba(255, 182, 193, 0.1);
+  }
+  100% {
+    box-shadow: 
+      0 0 8px rgba(255, 182, 193, 0.3),
+      0 0 16px rgba(255, 182, 193, 0.2);
+  }
+}
+
+.quest-action.active {
+  background-color: #ff4757;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.quest-action.active:hover {
+  background-color: #ff3742;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+} 

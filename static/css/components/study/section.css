@@ -1,0 +1,199 @@
+/* ===== study section2 CSS (컴포넌트 사용) ===== */
+
+/* ===== 레이아웃 스타일 ===== */
+.study-section-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  gap: 32px;
+}
+
+.study-left-frame {
+  width: 60%;
+  max-width: 700px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.study-right-frame {
+  width: 40%;
+  max-width: 500px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 0;
+}
+
+/* ===== 이미지 스타일 ===== */
+.study-img {
+  display: block;
+  width: 85%;
+  height: auto;
+  max-width: 500px;
+  border-radius: 12px;
+  margin: 0 auto;
+}
+
+.study-img-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* ===== overlay 위치 ===== */
+.study-overlay-monitor {
+  position: absolute;
+  left: 48.5%;
+  top: 45.5%;
+  width: 13%;
+  height: 10.5%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px 8px rgba(255, 245, 200, 0.85);
+  cursor: pointer;
+  background: rgba(255,255,255,0.01);
+  z-index: 2;
+}
+
+@keyframes monitor-glow {
+  0% {
+    box-shadow: 0 0 12px 4px rgba(255, 245, 200, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 36px 16px rgba(255, 245, 200, 1);
+  }
+}
+
+.study-overlay-monitor:hover {
+  animation: none;
+  box-shadow: 0 0 48px 20px rgba(255, 245, 200, 1);
+}
+
+/* 일주일 차트 overlay */
+.overlay-weekchart {
+  position: absolute;
+  left: 80.5%;
+  top: 31.5%;
+  width: 15%;
+  height: 12.9%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px 8px rgba(255, 245, 200, 0.85);
+  cursor: pointer;
+  background: rgba(255,255,255,0.01);
+  z-index: 2;
+}
+
+@keyframes weekchart-glow {
+  0% {
+    box-shadow: 0 0 12px 4px rgba(255, 245, 200, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 36px 16px rgba(255, 245, 200, 1);
+  }
+}
+
+.overlay-weekchart:hover {
+  animation: none;
+  box-shadow: 0 0 48px 20px rgba(255, 245, 200, 1);
+}
+
+/* ===== 퀘스트 컨테이너 (컴포넌트 제외) ===== */
+.quest-window {
+  width: 90%;
+  margin: 0 auto;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.quest-window h3 {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.quest-list {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ===== blink 애니메이션 ===== */
+.blink-study-overlay-monitor {
+  position: absolute;
+  left: 48.5%;
+  top: 45.5%;
+  width: 13%;
+  height: 10.5%;
+  border-radius: 8px;
+  background: rgba(255, 245, 200, 0.1);
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1001;  /* study-overlay-monitor보다 높게 설정 */
+}
+
+.blink-study-overlay-monitor.blink {
+  animation: blink-animation 0.8s ease-in-out infinite;
+  opacity: 1; /* 애니메이션 시작 시 보이게 설정 */
+}
+
+@keyframes blink-animation {
+  0% { 
+    opacity: 0; 
+    background: rgba(255, 245, 200, 0.1);
+    box-shadow: 0 0 10px 5px rgba(255, 245, 200, 0.3);
+  }
+  50% { 
+    opacity: 1; 
+    background: rgba(255, 245, 200, 0.4);
+    box-shadow: 0 0 20px 10px rgba(255, 245, 200, 0.6);
+  }
+  100% { 
+    opacity: 0; 
+    background: rgba(255, 245, 200, 0.1);
+    box-shadow: 0 0 10px 5px rgba(255, 245, 200, 0.3);
+  }
+}
+
+/* ===== 편지 오버레이 glow 효과 ===== */
+.letter-overlay-glow {
+  position: absolute;
+  left: 13%;
+  top: 77.5%;
+  width: 17%;
+  height: auto;
+  pointer-events: auto;
+  filter: drop-shadow(0 0 8px rgba(255, 245, 200, 1)) 
+          drop-shadow(0 0 16px rgba(255, 245, 200, 0.9));
+  animation: letter-glow 0.6s infinite alternate;
+}
+
+@keyframes letter-glow {
+  0% {
+    filter: drop-shadow(0 0 4px rgba(255, 245, 200, 0.8)) 
+            drop-shadow(0 0 8px rgba(255, 245, 200, 0.6));
+  }
+  100% {
+    filter: drop-shadow(0 0 20px rgba(255, 245, 200, 1)) 
+            drop-shadow(0 0 40px rgba(255, 245, 200, 0.9));
+  }
+}

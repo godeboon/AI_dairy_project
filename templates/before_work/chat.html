@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI 채팅</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/chat.css">
+</head>
+<body style="height:100%;margin:0;">
+  <div class="chat-outer">
+    <div id="chat-header">
+      <div id="chat-date"></div>
+      <button id="close-chat">✕</button>
+    </div>
+    <h2> 대화하기 </h2>
+    <div class="chat-main">
+      <div id="chat-box"></div>
+      <div id="input-box">
+        <textarea id="input-field" rows="2" placeholder="메시지를 입력하세요..."></textarea>
+        <button onclick="sendMessage()"> 전송 </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/chat.js"></script>
+</body>
+</html>

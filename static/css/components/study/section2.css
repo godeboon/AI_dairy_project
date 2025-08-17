@@ -1,0 +1,265 @@
+.study-section-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    gap: 32px;
+  }
+  
+  .study-left-frame {
+    width: 60%;
+    max-width: 700px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1.5px solid #eee;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0;
+  }
+  
+  .study-right-frame {
+    width: 40%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1.5px solid #eee;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 0;
+  }
+  
+  .study-img {
+    display: block;
+    width: 85%;
+    height: auto;
+    max-width: 500px;
+    border-radius: 12px;
+    margin: 0 auto;
+  }
+  
+  .study-img-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .study-overlay-monitor {
+    position: absolute;
+    left: 48.5%;
+    top: 45.5%;
+    width: 13%;
+    height: 10.5%;
+    border-radius: 8px;
+    box-shadow: 0 0 20px 8px rgba(255, 245, 200, 0.85);
+    cursor: pointer;
+    background: rgba(255,255,255,0.01);
+    z-index: 2;
+  }
+  
+  @keyframes monitor-glow {
+    0% {
+      box-shadow: 0 0 12px 4px rgba(255, 245, 200, 0.6);
+    }
+    100% {
+      box-shadow: 0 0 36px 16px rgba(255, 245, 200, 1);
+    }
+  }
+  
+  .study-overlay-monitor:hover {
+    animation: none;
+    box-shadow: 0 0 48px 20px rgba(255, 245, 200, 1);
+  }
+
+  /* 일주일 차트 overlay */
+  .overlay-weekchart {
+    position: absolute;
+    left: 80.5%;
+    top: 31.5%;
+    width: 15%;
+    height: 12.9%;
+    border-radius: 8px;
+    box-shadow: 0 0 20px 8px rgba(255, 245, 200, 0.85);
+    cursor: pointer;
+    background: rgba(255,255,255,0.01);
+    z-index: 2;
+  }
+
+  @keyframes weekchart-glow {
+    0% {
+      box-shadow: 0 0 12px 4px rgba(255, 245, 200, 0.6);
+    }
+    100% {
+      box-shadow: 0 0 36px 16px rgba(255, 245, 200, 1);
+    }
+  }
+
+  .overlay-weekchart:hover {
+    animation: none;
+    box-shadow: 0 0 48px 20px rgba(255, 245, 200, 1);
+  }
+
+
+  
+  .quest-window {
+    width: 90%;
+    margin: 0 auto;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .quest-window h3 {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+  
+  .quest-list {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .quest-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #FFF3EF;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    border: 1px solid #FFD4C7;
+    transition: box-shadow 0.2s;
+  }
+  .quest-box.locked {
+    opacity: 0.5;
+    position: relative;
+  }
+  .quest-content {
+    flex-grow: 1;
+  }
+  .quest-name {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #ff7043;
+  }
+  .quest-desc {
+    font-size: 0.98em;
+    color: #666;
+  }
+  .quest-action {
+    background-color: #FF8E70;
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .quest-action:disabled {
+    background-color: #ddd;
+    color: #999;
+    cursor: not-allowed;
+  }
+  
+  /* 활성화된 퀘스트 버튼 스타일 */
+  .quest-action.active {
+    background-color: #ff4757;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  
+  .quest-action.active:hover {
+    background-color: #ff3742;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+  }
+
+  /* 일기 작성 버튼 (항상 활성화) */
+  .quest-action.diary-write-btn {
+    background-color: #ff4757;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .quest-action.diary-write-btn:hover {
+    background-color: #ff3742;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+  }
+
+  /* 일기 작성 퀘스트 활성화 시 전체 박스 스타일 */
+  .quest-box.diary-active {
+    border-color: #ff4757;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.1);
+    background-color: #fff5f5;
+  }
+
+  .quest-box.diary-active .quest-name {
+    color: #ff4757;
+    font-weight: 600;
+  }
+
+  .quest-box.diary-active .quest-desc {
+    color: #ff4757;
+    opacity: 0.8;
+  }
+
+  /* 일기 생성 모니터 overlay 반짝임 효과 */
+  .blink-study-overlay-monitor {
+    position: absolute;
+    left: 48.5%;
+    top: 45.5%;
+    width: 13%;
+    height: 10.5%;
+    border-radius: 8px;
+    background: rgba(255, 245, 200, 0.1);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1001;  /* study-overlay-monitor보다 높게 설정 */
+  }
+  
+
+  
+  .blink-study-overlay-monitor.blink {
+    animation: blink-animation 0.8s ease-in-out infinite;
+    opacity: 1; /* 애니메이션 시작 시 보이게 설정 */
+  }
+
+  @keyframes blink-animation {
+    0% { 
+      opacity: 0; 
+      background: rgba(255, 245, 200, 0.1);
+      box-shadow: 0 0 10px 5px rgba(255, 245, 200, 0.3);
+    }
+    50% { 
+      opacity: 1; 
+      background: rgba(255, 245, 200, 0.4);
+      box-shadow: 0 0 20px 10px rgba(255, 245, 200, 0.6);
+    }
+    100% { 
+      opacity: 0; 
+      background: rgba(255, 245, 200, 0.1);
+      box-shadow: 0 0 10px 5px rgba(255, 245, 200, 0.3);
+    }
+  } 

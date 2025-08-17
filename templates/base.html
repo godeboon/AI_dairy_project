@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}감성 다이어리{% endblock %}</title>
+  {% block extra_head %}{% endblock %}
+</head>
+<body style="background-color: #fdf6f0; font-family: system-ui, Arial, sans-serif; color: #333; margin:0;">
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.7); backdrop-filter: blur(5px);">
+    <div class="header-left">
+      <h1 style="font-size: 36px; margin: 0;">당곰다, 당신의 공간을 담다</h1>
+    </div>
+    <nav class="nav-links">
+      <a href="/" style="margin: 0 15px; text-decoration: none; font-size: 16px; color: #444;">홈</a>
+      <a href="/intro" style="margin: 0 15px; text-decoration: none; font-size: 16px; color: #444;">서비스 소개</a>
+    </nav>
+    <div class="header-right">
+      <div id="guest-header">
+        <button class="login-btn" style="background-color: #ffffffcc; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer;" onclick="window.location.href='/login'">로그인</button>
+      </div>
+      <div id="user-header" style="display: none; flex-direction: column; align-items: center;">
+        <div class="welcome-message" id="welcome-message" style="font-size: 14px; color: #444; margin-bottom: 8px; text-align: center;"></div>
+        <button class="logout-btn" style="background-color: #ffffffcc; border: none; padding: 10px 20px; font-size: 16px; border-radius: 8px; cursor: pointer;" onclick="logout()">로그아웃</button>
+      </div>
+    </div>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <script>
+    // 로그인 상태 확인 및 헤더 변경
+    function checkLoginStatus() {
+      const token = localStorage.getItem("access_token");
+      const nickname = localStorage.getItem("nickname");
+      if (token && nickname) {
+        document.getElementById('guest-header').style.display = 'none';
+        document.getElementById('user-header').style.display = 'flex';
+        document.getElementById('welcome-message').textContent = `${nickname}님 환영합니다`;
+      } else {
+        document.getElementById('guest-header').style.display = 'block';
+        document.getElementById('user-header').style.display = 'none';
+      }
+    }
+    // 로그아웃 요청
+    async function logout() {
+      const user_id = localStorage.getItem("user_id");
+      try {
+        if (user_id) {
+          await fetch("/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: parseInt(user_id) })
+          });
+        }
+        localStorage.clear();
+        checkLoginStatus();
+      } catch (error) {
+        localStorage.clear();
+        checkLoginStatus();
+      }
+    }
+    window.onload = function () {
+      checkLoginStatus();
+    };
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,49 @@
+<div class="dashboard-container">
+  <button class="close-btn" id="close-dashboard-btn" title="닫기">×</button>
+  <div class="main-tabs">
+    <button class="main-tab active" data-tab="space">공간</button>
+    <button class="main-tab" data-tab="chatting">채팅하기</button>
+    <button class="main-tab" data-tab="study">서재</button>
+    <button class="main-tab" data-tab="garden">텃밭</button>
+    <button class="main-tab" data-tab="constellation">나의 별자리</button>
+  </div>
+  <div class="content-area">
+    <div class="left-sidebar">
+      <div class="sub-tabs">
+        <div class="sub-tab">알림</div>
+      </div>
+    </div>
+    <div class="main-content" id="main-content">
+      <!-- 공간 탭이 active일 때 space_section.html이 동적으로 삽입됨 -->
+    </div>
+  </div>
+</div>
+
+<!-- 팝업 컴포넌트 -->
+<div class="popup-overlay" id="popup-overlay">
+  <div class="popup-container">
+    <div class="popup-header">
+      <h3 class="popup-title">알림</h3>
+      <button class="popup-close-btn" id="popup-close-btn">&times;</button>
+    </div>
+    <div class="popup-content">
+      <div class="popup-message" id="popup-message">
+        메시지가 여기에 표시됩니다.
+      </div>
+    </div>
+    <div class="popup-footer">
+      <button class="popup-confirm-btn" id="popup-confirm-btn">확인</button>
+    </div>
+  </div>
+</div>
+<script src="/static/js/mypage_edit.js"></script>
+<script src="/static/js/components/popup/popup.js"></script>
+<link rel="stylesheet" href="/static/css/mypage_edit.css">
+<link rel="stylesheet" href="/static/css/components/space/section.css">
+<link rel="stylesheet" href="/static/css/components/study/section.css">
+<link rel="stylesheet" href="/static/css/components/study/sub_diary_generate.css">
+<link rel="stylesheet" href="/static/css/components/study/encourage.css">
+<link rel="stylesheet" href="/static/css/components/chatting/section.css">
+<link rel="stylesheet" href="/static/css/components/chatting/sub_chat_list.css">
+<link rel="stylesheet" href="/static/css/components/garden/section.css">
+<link rel="stylesheet" href="/static/css/components/popup/popup.css">

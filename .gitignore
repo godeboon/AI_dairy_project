@@ -1,0 +1,188 @@
+# 환경변수 파일 (보안상 Git에 올리지 않음).
+.env
+.env.local
+.env.production
+.env.staging
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== AI 다이어리 프로젝트 특화 =====
+
+# 데이터베이스 파일들
+*.db
+*.sqlite
+*.sqlite3
+test.db
+your_database.db
+database.db
+
+# Celery 스케줄 파일들
+celerybeat-schedule.*
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir
+
+# 테스트 및 임시 파일들
+test_*.py
+*_test.py
+test_diary_analysis.py
+test_time_utils.py
+test_timestamp_fix.py
+chatmessage_delete.py
+check_encouragement.py
+remove_source_type_column.py
+
+# 벡터 DB 및 AI 모델 파일들
+*.faiss
+*.index
+vector_db/
+embeddings/
+*.pkl
+*.pickle
+*.model
+*.bin
+*.safetensors
+models/
+checkpoints/
+
+# Redis 덤프 파일들
+dump.rdb
+*.rdb
+
+# 세션 및 토큰 파일들
+session_*
+token_*
+*.session
+
+# 보안 설정 파일들 (매우 중요!)
+app/config/settings.py
+config/settings.py
+settings.py
+secrets.py
+credentials.py
+api_keys.py
+
+# 임시 파일들
+*.tmp
+*.temp
+*.bak
+*.backup
+temp_*
+tmp_*
+*_temp.py
+*_tmp.py 

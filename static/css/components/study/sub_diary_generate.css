@@ -1,0 +1,415 @@
+/* 일기 생성 컨테이너 */
+.diary-container {
+    background: linear-gradient(135deg, #ffe1d2 0%, #ffccbc 100%);
+    border: 2px solid #ff7a3d;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(255, 122, 61, 0.2);
+    padding: 24px;
+    margin: 20px;
+    font-family: 'Nanum Gothic', sans-serif;
+}
+
+/* 탭 버튼 스타일 */
+.diary-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #ffccbc;
+    padding-bottom: 16px;
+}
+
+.tab-button {
+    padding: 12px 20px;
+    background: #ffe1d2;
+    border: 2px solid #ffccbc;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #ff7043;
+}
+
+.tab-button:hover {
+    background: #ffccbc;
+    transform: translateY(-2px);
+}
+
+.tab-button.active {
+    background: #ff7a3d;
+    color: white;
+    border-color: #ff7a3d;
+    box-shadow: 0 4px 12px rgba(255, 122, 61, 0.3);
+}
+
+/* 탭 콘텐츠 */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 직접 작성 탭 */
+.diary-editor-container h3 {
+    color: #ff7043;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.editor-wrapper {
+    background: white;
+    border: 2px solid #ffccbc;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(255, 204, 188, 0.1);
+}
+
+#diary-editor {
+    width: 100%;
+    min-height: 300px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4A4A4A;
+    background: white;
+    padding: 10px 15px;
+}
+
+#diary-editor::placeholder {
+    color: #B8B8B8;
+}
+
+.editor-actions {
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* AI 생성 탭 */
+.ai-generation-container h3 {
+    color: #ff7043;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.generation-status {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#generation-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #ff7043;
+    font-weight: 500;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ffccbc;
+    border-top: 3px solid #ff7a3d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.generated-content {
+    background: white;
+    border: 2px solid #ffccbc;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(255, 204, 188, 0.1);
+}
+
+.generated-text {
+    min-height: 300px;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4A4A4A;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+}
+
+.generation-actions {
+    text-align: center;
+}
+
+/* 일기 목록 탭 */
+.diary-list-container h3 {
+    color: #ff7043;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+/* 좌우 분할 레이아웃 */
+.diary-list-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    height: 600px;
+}
+
+/* 컨테이너 박스 스타일 */
+.diary-container-box {
+    background: white;
+    border: 3px solid #ffccbc;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(255, 204, 188, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 컨테이너 헤더 */
+.container-header {
+    background: linear-gradient(135deg, #ffe1d2 0%, #ffccbc 100%);
+    padding: 16px 20px;
+    border-bottom: 2px solid #ffccbc;
+}
+
+.container-header h4 {
+    color: #ff7043;
+    margin: 0;
+    font-size: 1.2em;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* 컨테이너 콘텐츠 */
+.container-content {
+    flex: 1;
+    padding: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 사용자 컨테이너 특별 스타일 */
+.user-container {
+    border-color: #4FC3F7;
+    box-shadow: 0 6px 20px rgba(79, 195, 247, 0.15);
+}
+
+.user-container .container-header {
+    background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
+    border-bottom-color: #4FC3F7;
+}
+
+.user-container .container-header h4 {
+    color: #0277BD;
+}
+
+/* AI 컨테이너 특별 스타일 */
+.ai-container {
+    border-color: #FF7043;
+    box-shadow: 0 6px 20px rgba(255, 112, 67, 0.15);
+}
+
+.ai-container .container-header {
+    background: linear-gradient(135deg, #FFE0B2 0%, #FFCCBC 100%);
+    border-bottom-color: #FF7043;
+}
+
+.ai-container .container-header h4 {
+    color: #E65100;
+}
+
+.diary-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+/* 스크롤바 스타일링 */
+.diary-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.diary-list::-webkit-scrollbar-track {
+    background: #ffccbc;
+    border-radius: 3px;
+}
+
+.diary-list::-webkit-scrollbar-thumb {
+    background: #ff7a3d;
+    border-radius: 3px;
+}
+
+.diary-list::-webkit-scrollbar-thumb:hover {
+    background: #ff7043;
+}
+
+.diary-item {
+    background: white;
+    border: 2px solid #ffccbc;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(255, 204, 188, 0.1);
+    transition: all 0.3s ease;
+}
+
+.diary-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255, 204, 188, 0.2);
+    cursor: pointer;
+}
+
+/* 채팅 리스트 스타일 적용 */
+.diary-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    border: 1px solid #e9ecef;
+    margin-bottom: 12px;
+}
+
+.diary-item:hover {
+    background: #ffe1d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.diary-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.diary-date {
+    font-weight: 600;
+    color: #ff7043;
+}
+
+.diary-source {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.diary-source.manual {
+    background: #E3F2FD;
+    color: #1976D2;
+}
+
+.diary-source.ai {
+    background: #F3E5F5;
+    color: #7B1FA2;
+}
+
+.diary-content {
+    color: #4A4A4A;
+    line-height: 1.5;
+    max-height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 버튼 스타일 */
+.action-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.action-btn.primary {
+    background: #ff7a3d;
+    color: white;
+}
+
+.action-btn.primary:hover {
+    background: #ff7043;
+    transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+    background: #ffccbc;
+    color: #ff7043;
+}
+
+.action-btn.secondary:hover {
+    background: #ff7a3d;
+    color: white;
+}
+
+/* AI 생성 버튼 활성화 스타일 */
+.action-btn.primary.active {
+    background: #ff4757;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+}
+
+.action-btn.primary.active:hover {
+    background: #ff3742;
+    transform: translateY(-1px);
+}
+
+.action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    background-color: #ddd !important;
+    color: #999 !important;
+}
+
+/* 유틸리티 클래스 */
+.hidden {
+    display: none !important;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .diary-container {
+        margin: 10px;
+        padding: 16px;
+    }
+    
+    .diary-tabs {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .tab-button {
+        text-align: center;
+    }
+    
+    /* 모바일에서 좌우 분할을 세로로 변경 */
+    .diary-list-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+        height: auto;
+        gap: 16px;
+    }
+    
+    .diary-container-box {
+        min-height: 300px;
+    }
+} 

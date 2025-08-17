@@ -1,0 +1,226 @@
+/* encourage.css */
+/* 오늘의 응원 및 음악 추천 페이지 스타일 */
+
+.encourage-container {
+  background: #fff;
+  border: 1.5px solid #eee;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 24px;
+  margin: 20px;
+  font-family: 'Nanum Gothic', sans-serif;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 상단 제목 스타일 */
+.encourage-header {
+  text-align: center;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.encourage-header h2 {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.encourage-header p {
+  font-size: 1.1em;
+  color: #666;
+  margin: 0;
+}
+
+/* 메인 콘텐츠 영역 */
+.encourage-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* 콘텐츠 섹션 */
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 섹션 라벨 */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.section-label .icon {
+  font-size: 1.0em;
+}
+
+.section-label .label-text {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 콘텐츠 카드 */
+.content-card {
+  background: #fff;
+  border: 1.5px solid #eee;
+  border-radius: 12px;
+  padding: 24px;
+  min-height: 200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* 메시지 텍스트 */
+.message-text {
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #333;
+  min-height: 150px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 음악 콘텐츠 */
+.music-content {
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #333;
+  min-height: 150px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 콘텐츠 버튼 */
+.content-btn {
+  background: #ffccbc;
+  color: #444;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 204, 188, 0.3);
+  margin-top: 16px;
+}
+
+.content-btn:hover {
+  transform: translateY(-2px);
+  background: #ffa894;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 168, 148, 0.4);
+}
+
+.content-btn:active {
+  transform: translateY(0);
+}
+
+.content-btn.active {
+  background: #ffccbc;
+  color: #444;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 204, 188, 0.3);
+  margin-top: 16px;
+}
+
+.content-btn.active:hover {
+  transform: translateY(-2px);
+  background: #ffa894;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 168, 148, 0.4);
+}
+
+
+
+.content-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 콘텐츠가 있을 때 버튼 숨김 */
+.content-card.has-content .content-btn {
+  display: none;
+}
+
+
+
+
+/* 비활성화된 버튼 (기본 상태) */
+.content-btn.disabled {
+  background-color: #E0E0E0;
+  color: #9E9E9E;
+  cursor: pointer;
+  border: 1px solid #D0D0D0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-radius: 8px;  /* 둥근 모서리! */
+  padding: 10px 16px;  /* 작은 크기 */
+  font-size: 14px;
+}
+
+.content-btn.disabled:hover {
+  background-color: #ffa894;  /* 호버 시 주황색 */
+  color: white;
+  box-shadow: 0 2px 6px rgba(255, 168, 148, 0.3);
+}
+
+
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .encourage-container {
+    margin: 10px;
+    padding: 20px;
+  }
+  
+  .encourage-header h2 {
+    font-size: 1.6em;
+  }
+  
+  .encourage-content {
+    gap: 32px;
+  }
+  
+  .content-card {
+    padding: 20px;
+    min-height: 180px;
+  }
+  
+  .message-text,
+  .music-content {
+    font-size: 1em;
+    min-height: 120px;
+  }
+  
+  .content-btn {
+    padding: 10px 20px;
+    font-size: 0.9em;
+  }
+}

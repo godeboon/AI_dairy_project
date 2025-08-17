@@ -1,0 +1,74 @@
+<div class="diary-container">
+    <!-- 상단 탭 -->
+    <div class="diary-tabs">
+        <div class="tab-button active" data-tab="ai">🤖 AI 생성</div>
+        <div class="tab-button" data-tab="manual">📝 직접 작성</div>
+        <div class="tab-button" data-tab="list">📚 일기 목록</div>
+    </div>
+
+    <!-- AI 생성 탭 -->
+    <div class="tab-content active" id="ai-tab">
+        <div class="ai-generation-container">
+            <h3>AI가 오늘의 일기를 생성해드릴게요</h3>
+            <div class="generation-status">
+                <div id="generation-indicator" class="hidden">
+                    <div class="loading-spinner"></div>
+                    <span>AI가 일기를 생성하고 있어요...</span>
+                </div>
+            </div>
+            <div class="generated-content">
+                <div id="ai-generated-text" class="generated-text"></div>
+                <div class="generation-actions">
+                    <button id="generate-diary-btn" class="action-btn primary disabled">🤖 AI로 생성하기</button>
+                    <!-- <button id="save-generated-btn" class="action-btn secondary hidden">💾 저장하기</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 직접 작성 탭 -->
+    <div class="tab-content" id="manual-tab">
+        <div class="diary-editor-container">
+            <h3>오늘의 일기를 작성해보세요</h3>
+            <div class="editor-wrapper">
+                <textarea id="diary-editor" placeholder="오늘 있었던 일들을 자유롭게 적어보세요..."></textarea>
+                <div class="editor-actions">
+                    <button id="save-diary-btn" class="action-btn primary">💾 저장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 일기 목록 탭 -->
+    <div class="tab-content" id="list-tab">
+        <div class="diary-list-container">
+            <h3>지금까지 쓴 일기들</h3>
+            <div class="diary-list-layout">
+                <!-- 사용자 작성 일기 컨테이너 -->
+                <div class="diary-container-box user-container">
+                    <div class="container-header">
+                        <h4>📝 내가 작성한 일기</h4>
+                    </div>
+                    <div class="container-content">
+                        <div id="user-diary-list" class="diary-list">
+                            <!-- 사용자 작성 일기 목록이 여기에 동적으로 로드됨 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI 생성 일기 컨테이너 -->
+                <div class="diary-container-box ai-container">
+                    <div class="container-header">
+                        <h4>🤖 AI가 생성한 일기</h4>
+                    </div>
+                    <div class="container-content">
+                        <div id="ai-diary-list" class="diary-list">
+                            <!-- AI 생성 일기 목록이 여기에 동적으로 로드됨 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

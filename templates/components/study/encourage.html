@@ -1,0 +1,44 @@
+<div class="encourage-container">
+  <!-- 상단 제목 -->
+  <div class="encourage-header">
+    <h2>하루의 마무리</h2>
+  </div>
+  
+  <!-- 메인 콘텐츠 영역 -->
+  <div class="encourage-content">
+    <!-- 응원 메시지 섹션 -->
+    <div class="content-section">
+      <div class="section-label">
+        <span class="icon">📨</span>
+        <span class="label-text">특별한 당신의 하루를 응원해요 </span>
+      </div>
+      <div class="content-card">
+        <div id="encourage-message" class="message-text">
+          <!-- AI가 생성한 응원 메시지가 여기에 표시됨 -->
+        </div>
+        <button id="encourage-btn" type="button" class="content-btn disabled" aria-disabled="true">
+          응원 메시지 받기
+        </button>
+      </div>
+    </div>
+    
+    <!-- 음악 추천 섹션 -->
+    <div class="content-section">
+      <div class="section-label">
+        <span class="icon">🎵</span>
+        <span class="label-text">오늘 분위기에 어울리는 음악 </span>
+      </div>
+      <div class="content-card">
+        <div id="music-recommendation" class="music-content">
+          <!-- 음악 추천이 여기에 표시됨 -->
+        </div>
+        <button id="encourage-btn" type="button" class="content-btn disabled" aria-disabled="true">
+          음악 추천받기
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS 로드 -->
+<script src="/static/js/components/study/encourage.js"></script>
