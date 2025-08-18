@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange.svg)
 ![LangChain](https://img.shields.io/badge/LangChain-0.3+-yellow.svg)
@@ -251,7 +251,7 @@ app/
 ### 1. 환경 설정
 ```bash
 # 저장소 클론
-git clone https://github.com/your-username/matabus.git
+git clone https://github.com/godeboon/AI_dairy_project.git
 cd matabus
 
 # 가상환경 생성 및 활성화
@@ -306,7 +306,4 @@ celery -A app.services.celery_app worker --loglevel=info
 
 ---
 
-<div align="center">
 
-
-</div> 
