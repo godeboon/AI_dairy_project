@@ -300,7 +300,8 @@ celery -A app.services.celery_app worker --loglevel=info
 ## 📞 연락처
 
 - **이메일**: kjkj750@naver.com
-- **GitHub**: [Your GitHub Profile]([https://github.com/your-username](https://github.com/godeboon/AI_dairy_project))
+- **GitHub**: [AI_dairy_project Repository](https://github.com/godeboon/AI_dairy_project)
+
 
 ---
 
