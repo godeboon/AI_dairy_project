@@ -87,9 +87,16 @@ def hybrid_retrieve(self, user_query: str, user_id: int, yymmdd: str):
 ### 3-2. 맥락 인식 대화 시스템
 ```python
 # 대화 히스토리 기반 맥락 유지
-def _resolve_ids(self, meta: Dict[str, Any], source: str, text: str):
-    # 세션 단위로 대화 그룹핑
-    doc_id = f"{user_id}:{session_id}"
+def _resolve_ids(self, meta: Dict[str, Any], *, source: str, text: str):
+    user_id = str(meta.get("user_id", "u"))
+    session_id = str(meta.get("session_id", "")) or "s"
+    
+    if meta.get("doc_id"):
+        doc_id = str(meta["doc_id"])
+    else:
+        # 세션 단위 doc_id를 기본으로(동일 세션 묶임)
+        doc_id = f"{user_id}:{session_id}"
+    
     return doc_id, session_id, yymmdd
 ```
 
@@ -111,6 +118,21 @@ async def generate_diary_stream(self, user_id: int):
     # 3. 스트리밍 GPT 호출
     async for chunk in self.gpt_client.stream_gpt_response(prompt):
         yield chunk  # 실시간 스트리밍
+    
+    # 4. DB 저장 및 Redis 알림
+    # ... 저장 로직
+```
+
+### 3-4. 다중 AI 모델 지원 
+```python
+# OpenAI GPT-4 + Mixtral 모델 지원
+class GPTClient:
+    def stream_gpt_response(self, prompt):  # OpenAI 스트리밍
+    
+class MixtralClient:
+    def generate_summary(self, conversation_text):  # Mixtral 요약
+```
+
 ```
 
 **생성 과정:**
