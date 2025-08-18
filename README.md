@@ -133,7 +133,6 @@ class MixtralClient:
     def generate_summary(self, conversation_text):  # Mixtral 요약
 ```
 
-```
 
 **생성 과정:**
 - **대화 데이터 수집**: 사용자의 오늘 대화 내용을 토큰 단위로 분석
