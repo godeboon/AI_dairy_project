@@ -25,7 +25,8 @@
 </p>
 
 <p align="center">
-  <b>왼쪽</b>: 응원 메시지 생성 후 Server-Sent Events 기반 프론트 UI 변화  
+  <b>왼쪽</b>: 응원 메시지 생성 후 Server-Sent Events 기반 프론트 UI 변화
+  
   <b>오른쪽</b>: 특정 이미지 클릭 → 응원 메시지 스트리밍
 </p>
 
