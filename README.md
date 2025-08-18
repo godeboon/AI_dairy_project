@@ -20,13 +20,13 @@
 ## 간단한 시연 영상
 
 <p align="center">
-  <img src="letter_glow.gif" alt="응원 메시지 생성 화면" width="45%">
-  <img src="eng.gif" alt="이미지 클릭 후 메시지 스트리밍" width="45%">
+  <img src="letter_glow.gif" alt="응원 메시지 생성" width="45%">
+  <img src="eng.gif" alt="응원 메시지 스트리밍" width="45%">
 </p>
 
 <p align="center">
-  <em>왼쪽: 응원 메시지 생성 후 Server-Sent Events 프론트 UI 변화</em>  
-  <em>오른쪽: 특정 이미지 클릭 → 응원 메시지 스트리밍</em>
+  <b>왼쪽</b>: 응원 메시지 생성 후 Server-Sent Events 기반 프론트 UI 변화  
+  <b>오른쪽</b>: 특정 이미지 클릭 → 응원 메시지 스트리밍
 </p>
 
 
