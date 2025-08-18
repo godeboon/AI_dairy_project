@@ -2,6 +2,7 @@ import json
 from sqlalchemy.orm import Session
 from app.repositories.today_chat_message_repository import TodayChatMessageRepository
 from app.models.db.study_model import EncouragementReport
+from app.models.db.user_model import User
 from app.clients.gpt_api import call_gpt
 from datetime import datetime
 import redis
@@ -25,15 +26,26 @@ class EncourageDiaryService:
         """사용자 격려 메시지 생성"""
         
         try:
-            # 1. user 채팅 내용 가져오기
+            # 1. user의 nickname 가져오기
+            user = self.db.query(User).filter(User.id == user_id).first()
+            if not user:
+                print(f"❌ [ERROR] user_id={user_id}인 사용자를 찾을 수 없습니다.")
+                return False
+            
+            nickname = user.nickname
+            print(f"🔍 [DEBUG] user_id={user_id}, nickname={nickname}")
+            
+            # 2. user 채팅 내용 가져오기
             combined_content, total_tokens = self.today_chat_repo.get_today_user_chat_content_and_tokens(user_id)
             print(f"🔍 [DEBUG] user_id={user_id}, combined_content 길이: {len(combined_content)}")
             
-            # 2. GPT API 호출 (시스템 메시지 + 사용자 메시지)
+            # 3. GPT API 호출 (시스템 메시지 + 사용자 메시지)
             prompt = [
                 {"role": "system", "content": "당신은 오늘 하루를 마무리 하는 사람에게 응원의 메시지와 그날의 어울리는 노래를 추천해주는 역할입니다.프롬프트 형식을 따라주세요. 정확한 JSON 형태로 응답해주세요."},
-                {"role": "user", "content": encourage_diary_prompt.format(content=combined_content)}
+                {"role": "user", "content": encourage_diary_prompt.format(content=combined_content, nickname=nickname)}
             ]
+
+            print(f"닉네임 : {nickname}")
 
 
             print(f"🔍 [DEBUG] prompt 전송: user_id={user_id}")

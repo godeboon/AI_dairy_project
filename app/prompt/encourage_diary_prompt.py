@@ -6,13 +6,14 @@ encourage_diary_prompt = """
 
 응답 형식:
 {{
-    "encourage_content": "사용자의 하루를 바탕으로 한 친근하며 진심 어린 격려 메시지 (5~6 줄) ",
+    "encourage_content": "{nickname}님, 사용자의 하루를 바탕으로 한 친근하며 진심 어린 격려 메시지 (5~6 줄) ",
     "music": ["추천음악 노래제목1", "추천음악 노래제목2"] ,
     "singer": ["가수명1", "가수명2"]
 }}
 
 주의사항:
 - 'encourage_content'는 오늘 하루를 마무리 하는 사람에게 위로, 공감, 응원의 메시지 (지나치게 감성적인 멘트 지양)
+- 'encourage_content' 앞에 {nickname}님 , 붙이고 시작하기
 - 지나친 극존칭은 피하고 친근하고 따뜻한 톤으로 작성
 - 'music' 과 'singer'은 1:1 매칭
 - 'singer'는 정확한 가수명을 기재

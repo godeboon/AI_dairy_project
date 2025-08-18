@@ -2,7 +2,13 @@
 import sqlite3
 import hashlib
 import json
+import time
+import threading
 from typing import Any, Dict, List, Optional
+
+# ✅ 전역 쓰기 락 (쓰기 구간 최소 보호)
+_SPARSE_WRITE_LOCK = threading.Lock()
+
 
 class SparseIndexService:
     """
@@ -12,8 +18,15 @@ class SparseIndexService:
     """
 
     def __init__(self, db_path: str = "D:/chroma_db/sparse_fts.db"):
+        # 한 커넥션을 여러 스레드에서 쓰기 위해 check_same_thread=False
         self.conn = sqlite3.connect(db_path, check_same_thread=False)
+        # ✅ 잠금 경합 시 대기 시간 (ms 단위가 아니라 ms*? 아님; SQLite에선 ms가 아니라 ms/?? → 파이썬에선 ms가 아닌 ms 단위로 보내도 내부적으로 ms로 처리)
+        #   -> SQLite는 busy_timeout 값을 밀리초(ms)로 받음. 파이썬 sqlite3는 정수 ms 전달.
+        self.conn.execute("PRAGMA busy_timeout=2000;")   # 2초 대기
+        # ✅ WAL: 동시 읽기 성능/안정성 향상
         self.conn.execute("PRAGMA journal_mode=WAL;")
+        # (선택) 디스크 동기화 레벨 완화: 속도/안정성 타협 (원하면 주석 해제)
+        # self.conn.execute("PRAGMA synchronous=NORMAL;")
         self._init_schema()
 
     def _init_schema(self):
@@ -93,18 +106,47 @@ class SparseIndexService:
             doc_id = self.build_id(metadata["user_id"], metadata["session_id"], metadata["type"], text)
             metadata = {**metadata, "doc_id": doc_id}
 
-        # 기존 삭제 (doc_id 단일 키)
-        self.conn.execute("DELETE FROM docs_fts WHERE doc_id=?", (doc_id,))
-        # 새로 추가
-        self.add_document(text, metadata)
+        # ✅ 짧은 쓰기 구간만 전역 락으로 보호
+        with _SPARSE_WRITE_LOCK:
+            # 짧은 트랜잭션으로 DELETE→INSERT 원자화
+            # BEGIN IMMEDIATE는 바로 쓰기 락을 요청하므로 경합 시 busy_timeout 규칙대로 대기
+            self.conn.execute("BEGIN IMMEDIATE;")
+            try:
+                # 기존 삭제 (doc_id 단일 키)
+                self.conn.execute("DELETE FROM docs_fts WHERE doc_id=?", (doc_id,))
+                # 새로 추가 (persist=False로, 동일 트랜잭션 내에서 처리)
+                self.conn.execute(
+                    "INSERT INTO docs_fts (text, type, user_id, session_id, doc_id, meta_json) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    (
+                        text,
+                        metadata.get("type"),
+                        metadata.get("user_id"),
+                        metadata.get("session_id"),
+                        doc_id,
+                        json.dumps(metadata, ensure_ascii=False),
+                    ),
+                )
+                self.conn.commit()
+            except Exception:
+                # 실패 시 롤백 안전장치
+                self.conn.rollback()
+                raise
 
     # ---------- 세션 단위 삭제 ----------
     def delete_by_session(self, user_id: int, session_id: str) -> None:
-        self.conn.execute(
-            "DELETE FROM docs_fts WHERE user_id=? AND session_id=?",
-            (user_id, session_id),
-        )
-        self.conn.commit()
+        # ✅ 세션 단위 대량 삭제도 짧은 트랜잭션 + 락
+        with _SPARSE_WRITE_LOCK:
+            self.conn.execute("BEGIN IMMEDIATE;")
+            try:
+                self.conn.execute(
+                    "DELETE FROM docs_fts WHERE user_id=? AND session_id=?",
+                    (user_id, session_id),
+                )
+                self.conn.commit()
+            except Exception:
+                self.conn.rollback()
+                raise
 
     # ---------- 검색 ----------
     def search(
@@ -126,8 +168,27 @@ class SparseIndexService:
         sql += " ORDER BY score LIMIT ?"
         params.append(top_k)
 
-        cur = self.conn.execute(sql, tuple(params))
-        rows = cur.fetchall()
+        # ✅ 드문 'database is locked' 방어: 짧은 재시도(80~150ms) 2회
+        attempts = 3
+        backoffs = [0.08, 0.12]
+
+        last_exc: Optional[Exception] = None
+        for i in range(attempts):
+            try:
+                cur = self.conn.execute(sql, tuple(params))
+                rows = cur.fetchall()
+                break
+            except sqlite3.OperationalError as e:
+                # 잠금 관련일 때만 재시도
+                msg = str(e).lower()
+                if ("database is locked" in msg or "database schema is locked" in msg) and i < attempts - 1:
+                    time.sleep(backoffs[i] if i < len(backoffs) else backoffs[-1])
+                    last_exc = e
+                    continue
+                raise
+        else:
+            if last_exc:
+                raise last_exc
 
         results: List[Dict[str, Any]] = []
         for text, type_, uid, sid, did, meta_json, score in rows:

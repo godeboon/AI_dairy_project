@@ -5,7 +5,12 @@ from langchain_community.vectorstores import Chroma
 from langchain.schema import Document
 from app.clients.huggingface_client import HuggingFaceClient
 import hashlib
+import time
+import threading
+from chromadb.errors import InternalError  # 재시도용
 
+# 모듈 전역 write 락
+_WRITE_LOCK = threading.Lock()
 def _sha1_16(text: str) -> str:
     return hashlib.sha1(text.encode("utf-8")).hexdigest()[:16]
 
@@ -132,15 +137,22 @@ class VectorDBService:
             type_ = meta.get("type", "text")
             doc_id = self.build_id(user_id, session_id, type_, text) if all([user_id, session_id]) else _sha1_16(text)
 
-        # 기존 삭제 후 add (Chroma는 upsert API가 없어 delete→add)
-        try:
-            self.vectorstore.delete(ids=[doc_id])
-        except Exception:
-            pass
-
         # 메타에도 doc_id 동기화
         meta["doc_id"] = doc_id
-        self.add_document(text=text, metadata=meta, doc_id=doc_id, persist=persist)
+
+        # === write 구간 잠금 (최소 범위) ===
+        with _WRITE_LOCK:
+            # 기존 삭제 후 add (Chroma는 upsert API가 없어 delete→add)
+            try:
+                self.vectorstore.delete(ids=[doc_id])
+            except Exception:
+                pass
+
+            # add 시 persist=False로 하고, 락 안에서 persist()까지
+            self.add_document(text=text, metadata=meta, doc_id=doc_id, persist=False)
+
+            if persist:
+                self.vectorstore.persist()
 
     # ---------- 세션 단위 삭제 ----------
     def delete_by_session(self, user_id: int, session_id: str) -> int:
@@ -170,7 +182,27 @@ class VectorDBService:
         max_distance: Optional[float] = None,
         min_similarity: Optional[float] = None,
     ) -> List[Dict[str, Any]]:
-        res = self.vectorstore.similarity_search_with_score(query, k=top_k, filter=where)
+        # === 재시도 로직 시작 ===
+        attempts = 3
+        backoffs = [0.08, 0.12]  # 초 단위: 80ms, 120ms (3번째는 마지막 값 사용)
+
+        last_exc: Optional[Exception] = None
+        for i in range(attempts):
+            try:
+                res = self.vectorstore.similarity_search_with_score(query, k=top_k, filter=where)
+                break  # 성공 시 루프 탈출
+            except InternalError as e:
+                # Chroma 내부 일시적 상태 불일치일 때만 재시도
+                if "Error finding id" in str(e) and i < attempts - 1:
+                    time.sleep(backoffs[i] if i < len(backoffs) else backoffs[-1])
+                    last_exc = e
+                    continue
+                # 다른 InternalError이거나 마지막 시도면 그대로 올림
+                raise
+        else:
+            # 이 블록은 이론상 도달하지 않지만, 안전망
+            if last_exc:
+                raise last_exc
 
         out: List[Dict[str, Any]] = []
         for doc, dist in res:
