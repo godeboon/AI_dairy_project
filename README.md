@@ -97,7 +97,7 @@
 - **연결 상태 관리**: 안정적인 WebSocket 연결 유지 및 오류 복구
 - **다중 채널 구독**: 일기, 격려, 리포트 등 다양한 알림 채널 지원
 
-### 2-4. 학습 분석 및 인사이트
+### 2-4. 분석 및 인사이트
 - **세션 분석**: 대화 세션별 상세 분석 및 요약
 - **주간 리포트**: 사용자의 대화 패턴과 감정 상태를 주간 단위로 분석
 - **격려 시스템**: 사용자의 감정 상태에 따른 맞춤형 격려 메시지 제공
@@ -295,54 +295,6 @@ app/
 ├── config/                  # 설정 관리
 └── utils/                   # 유틸리티 함수
 ```
-
----
-
-
-
-##  6.시작하기
-
-### 1. 환경 설정
-```bash
-# 저장소 클론
-git clone https://github.com/godeboon/AI_dairy_project.git
-cd matabus
-
-# 가상환경 생성 및 활성화
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 의존성 설치
-pip install -r requirements.txt
-```
-
-### 2. 환경변수 설정
-```bash
-# 환경변수 파일 복사
-cp env.example .env
-
-# .env 파일 편집
-# - OPENAI_API_KEY: OpenAI API 키
-# - SECRET_KEY: JWT 시크릿 키
-# - REDIS_HOST: Redis 서버 주소
-# - DATABASE_URL: 데이터베이스 연결 문자열
-```
-
-### 3. 데이터베이스 설정
-```bash
-# SQLite 데이터베이스 자동 생성 (기본값)
-# 또는 PostgreSQL 설정
-```
-
-### 4. 서버 실행
-```bash
-# 개발 서버 실행
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-# Celery 워커 실행 (별도 터미널)
-celery -A app.services.celery_app worker --loglevel=info
-```
-
 
 
 
