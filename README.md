@@ -170,7 +170,7 @@ async def generate_diary_stream(self, user_id: int):
     # ... 저장 로직
 ```
 
-### 3-4. 다중 AI 모델 지원 
+### 3-4. 다중 AI 모델 지원 (OpenAI GPT-4 + huggiface 플랫폼,  Mixtral )
 ```python
 # OpenAI GPT-4 + Mixtral 모델 지원
 class GPTClient:
@@ -187,7 +187,18 @@ class MixtralClient:
 - **스트리밍 생성**: GPT-4를 활용한 실시간 다이어리 생성
 - **자동 저장**: 생성 완료 후 자동으로 데이터베이스에 저장
 
+
+
+> ⚠️ **비용 관련 참고사항**  
+> - 초기에는 **Mixtral 모델**을 활용하여 세션 요약을 수행했으나,  
+>   실제 개발 환경에서 **API 호출 비용이 상당히 높아지는 문제**가 발생했습니다.  
+> - 내부 테스트 결과, **GPT 모델을 통한 요약 품질이 Mixtral과 유사한 수준**을 보였기 때문에  
+>   **운영 환경에서는 GPT 기반 요약**으로 결정하였습니다.  
+> - Mixtral 연동 코드는 참고용으로 유지하고 있으며, 필요 시 다중 모델 환경에서 확장 가능합니다.
+
 ---
+
+
 
 ## 4. 기술 스택
 
