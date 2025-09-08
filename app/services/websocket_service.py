@@ -141,10 +141,36 @@ class WebSocketService:
 
                         elif channel == f"user_{user_id}_report":
                             print(f"📊 리포트 알림 처리: {data}")
+                            
+                            # similar_pattern_event_check에서 발행하는 최종 리포트 처리
+                            if data.get('type') == 'report':
+                                print(f"📋 최종 리포트 완성 알림 처리: {data}")
+                                await self.send_notification(websocket, {
+                                    "type": "final_report",
+                                    "target": "study-section",
+                                    "message": data.get("message", "최종리포트 완성!"),
+                                    "report_id": data.get("report_id")
+                                }, user_id)
+                            else:
+                                # 기존 7일 리포트 처리
+                                await self.send_notification(websocket, {
+                                    "type": "seven_day_report",
+                                    "target": "study-section",
+                                    "message": "7일 감정 레포트가 완성되었습니다!",
+                                    "analysis_id": data.get("analysis_id"),
+                                    "week_start_date": data.get("week_start_date"),
+                                    "week_end_date": data.get("week_end_date")
+                                }, user_id)
+
+                        elif channel == f"user_{user_id}_chart":
+                            print(f"📈 차트 로딩 완료 알림 처리: {data}")
                             await self.send_notification(websocket, {
-                                "type": "seven_day_report",
+                                "type": "chart_loading_complete",
                                 "target": "study-section",
-                                "message": "7일 감정 레포트가 완성되었습니다!"
+                                "message": "7일 리포트 차트 로딩이 완료되었습니다!",
+                                "analysis_id": data.get("analysis_id"),
+                                "week_start_date": data.get("week_start_date"),
+                                "week_end_date": data.get("week_end_date")
                             }, user_id)
 
 

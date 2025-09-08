@@ -10,7 +10,7 @@ from jose import JWTError
 # FastAPI가 토큰을 가져오는 방식 지정
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-# 의존성 함수 정의
+# 의존성 함수 정의 ( 토큰해독 ->user_id 추출)
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)

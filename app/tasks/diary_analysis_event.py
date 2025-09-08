@@ -42,7 +42,10 @@ def check_weekly_analysis_after_diary_save(user_id: int):
                     "type": "seven_day_report",
                     "target": "study-section",
                     "message": "7일 감정 레포트가 완성되었습니다!",
-                    "user_id": user_id
+                    "user_id": user_id,
+                    "analysis_id": result.analysis_id,
+                    "week_start_date": result.week_start_date.strftime("%m-%d"),
+                    "week_end_date": result.week_end_date.strftime("%m-%d")
                 }
                 redis_client.publish(f"user_{user_id}_report", json.dumps(message))
                 

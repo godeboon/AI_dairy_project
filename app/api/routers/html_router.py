@@ -90,5 +90,18 @@ async def encourage_section(request: Request):
         return HTMLResponse(content=f.read())    
 
 
+@router.get("/templates/components/study/seven_chart.html", response_class=HTMLResponse)
+async def seven_chart_section(request: Request):
+    with open("templates/components/study/seven_chart.html", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read()) 
+
+
+@router.get("/templates/components/constellation/report.html", response_class=HTMLResponse)
+async def report_section(request: Request):
+    with open("templates/components/constellation/report.html", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read()) 
+
+
+
 print("✅ [html_router.py] 파일 로딩됨")
 print("✅ router 변수 존재 여부:", 'router' in globals())

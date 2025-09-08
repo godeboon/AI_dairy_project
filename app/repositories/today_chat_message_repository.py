@@ -168,6 +168,22 @@ class TodayChatMessageRepository:
         finally:
             db.close() 
 
+    def get_diary_by_id(self, diary_id: int, user_id: int):
+        """특정 일기 조회 (사용자 본인의 일기만)"""
+        db = next(get_db())
+        try:
+            diary = (
+                db.query(DiaryReport)
+                .filter(
+                    DiaryReport.diary_id == diary_id,
+                    DiaryReport.user_id == user_id
+                )
+                .first()
+            )
+            return diary
+        finally:
+            db.close()
+
     def today_session_user_chats_formatted(self, user_id: int, session_id: str):
         """특정 세션의 user 채팅만 포맷팅"""
         db = next(get_db())

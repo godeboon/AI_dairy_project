@@ -13,8 +13,9 @@ from sqlalchemy import and_, or_
 from app.models.db.chat_message_model import ChatMessage
 from app.models.db.session_summary import GPTSessionSummary
 from sqlalchemy import case
+import logging
 
-
+logger = logging.getLogger(__name__)
 
 # -------------------- 전처리 유틸 --------------------
 _EMOJI_RE = re.compile(
@@ -123,6 +124,9 @@ def build_chat_prompt(
         top_k=12,
     )
 
+    # 2-1) 진행중 세션 ID 스냅샷 (현재 세션은 제외)
+    inprog_ids = [sid for sid in (hybrid.get_inprog_session_ids(user_id) or []) if sid != session_id]
+
     # 3) 버킷 규칙으로 최종 4개 선정
     chosen = _select_sessions_by_bucket(retrieved, need=4)
     picked = chosen["picked"]
@@ -140,21 +144,45 @@ def build_chat_prompt(
         for row in rows:
             summaries[row.session_id] = row.summary
 
+    # 4-1) (신규) 진행중 세션 요약(요약만) 조회 → 프롬프트에 별도 섹션으로 넣을 예정
+    inprog_summaries: List[tuple[str, str]] = []
+    if inprog_ids:
+        rows = (
+            db.query(GPTSessionSummary.session_id, GPTSessionSummary.summary)
+            .filter(
+                and_(
+                    GPTSessionSummary.user_id == user_id,
+                    GPTSessionSummary.session_id.in_(inprog_ids)
+                )
+            )
+            .order_by(GPTSessionSummary.created_at.desc())
+            .all()
+        )
+        # rows는 [(session_id, summary), ...]
+        for sid, summ in rows:
+            inprog_summaries.append((sid, summ))
+
     # 5) 컨텍스트 블록 구성
     def _fmt_block(tag: str, sess_id: str, text: str) -> str:
         return f"[가능성_{tag}] (session={sess_id}) {text}"
 
     blocks: List[str] = []
+
+    # high
     if chosen["high"]:
-        blocks.append(_fmt_block("high", chosen["high"][0]["session_id"], summaries.get(chosen["high"][0]["session_id"], "")))
+        hsess = chosen["high"][0]["session_id"]
+        blocks.append(_fmt_block("high", hsess, summaries.get(hsess, "")))
     else:
         blocks.append("[가능성_high] 없음")
 
+    # middle
     if chosen["middle"]:
-        blocks.append(_fmt_block("middle", chosen["middle"][0]["session_id"], summaries.get(chosen["middle"][0]["session_id"], "")))
+        msess = chosen["middle"][0]["session_id"]
+        blocks.append(_fmt_block("middle", msess, summaries.get(msess, "")))
     else:
         blocks.append("[가능성_middle] 없음")
 
+    # low (최대 2개)
     if chosen["low"]:
         for r in chosen["low"][:2]:
             blocks.append(_fmt_block("low", r["session_id"], summaries.get(r["session_id"], "")))
@@ -162,22 +190,35 @@ def build_chat_prompt(
         blocks.append("[가능성_low] 없음")
         blocks.append("[가능성_low] 없음")
 
+    # (신규) ‘직전 세션(임베딩 처리 중) 참고’ 섹션
+    if inprog_ids:
+        blocks.append("[직전 세션(임베딩 처리 중) 참고]")
+        if inprog_summaries:
+            # 여러 개면 모두 나열 (원하면 inprog_summaries[:1]만 사용)
+            for sid, summ in inprog_summaries:
+                blocks.append(f"- (session={sid}) {summ}")
+        else:
+            # 요약 자체가 아직 DB에 없으면 안내만
+            blocks.append("추출된게 없음")
+    else:
+        # 진행중 세션 자체가 없으면 형식만 유지
+        blocks.append("[직전 세션(임베딩 처리 중) 참고]\n추출된게 없음")
+
     context_str = "\n".join(blocks)
 
     # 5.5) 현재 활성 세션의 대화 로그(시간순) 추가
-    # - 중복 방지: 현재 turn 이전까지의 메시지만 넣음
     today_chats = (
         db.query(ChatMessage)
         .filter(
             ChatMessage.user_id == user_id,
             ChatMessage.session_id == session_id,
-            ChatMessage.turn < turn,         # 현재 턴 중복 방지 (원하면 제거)
+            ChatMessage.turn < turn,
         )
         .order_by(
             ChatMessage.turn.asc(),
-            case((ChatMessage.role == "user", 0), else_=1),  # user 먼저
-            ChatMessage.timestamp.asc(),                     # 타이브레이커
-            ChatMessage.id.asc(),                            # 최종 안정화
+            case((ChatMessage.role == "user", 0), else_=1),
+            ChatMessage.timestamp.asc(),
+            ChatMessage.id.asc(),
         )
         .all()
     )
@@ -211,5 +252,6 @@ def build_chat_prompt(
         {"role": "user", "content": user_query_raw},
     ]
 
-    print(f"✔️ gpt_기억으로 하는prompt 구성 : {prompt_messages}")
+    logger.info("✔️ gpt_기억 프롬프트 구성 완료: uid=%s sid=%s turn=%s inprog=%s",
+                user_id, session_id, turn, inprog_ids)
     return prompt_messages

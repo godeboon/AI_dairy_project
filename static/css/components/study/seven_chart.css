@@ -1,0 +1,386 @@
+/* ===== seven chart CSS (4개 동일한 카드 버전) ===== */
+
+/* ===== 전체 컨테이너 ===== */
+.seven-chart-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 24px;
+  height: calc(100vh - 180px);
+  background: #fefefe;
+  border-radius: 12px;
+  padding-top: 0;
+  padding-left: 0;
+}
+
+/* ===== 모든 카드를 동일하게 만드는 공통 스타일 ===== */
+.chart-section,
+.emotion-trend-text {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+/* ===== 차트 캔버스 컨테이너 ===== */
+.chart-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 8px;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.chart-canvas-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* ===== 레이더 차트 컨테이너 ===== */
+.radar-chart-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== 감정 트렌드 텍스트 영역 (프레임 제거) ===== */
+.emotion-trend-text {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* ===== 종합 평가 영역 ===== */
+.comprehensive-assessment {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* ===== 텍스트 스타일 ===== */
+.trend-analysis {
+  display: block;
+}
+
+.trend-section {
+  margin-bottom: 16px;
+}
+
+.trend-section:last-child {
+  margin-bottom: 0;
+}
+
+.trend-section h4 {
+  color: #000000;
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.trend-section h4 strong {
+  color: #000000;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.trend-section p {
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.trend-section strong {
+  color: #000000;
+  font-weight: 600;
+}
+
+.comprehensive-assessment h4 {
+  color: #4a4a4a;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.comprehensive-assessment p {
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ===== 키워드 컨테이너 ===== */
+.keyword-container {
+  width: 100%;
+}
+
+/* ===== 키워드 및 인사이트 컨테이너 ===== */
+.keyword-insights-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.main-themes-section {
+  flex-shrink: 0;
+}
+
+.main-themes-section h4 {
+  color: #000000;
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.insights-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.insights-section h4 {
+  color: #000000;
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+.insights-container {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+  padding-right: 8px;
+  min-height: 0;
+}
+
+/* 인사이트 컨테이너 스크롤바 스타일링 */
+.insights-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.insights-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.insights-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.insights-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 인사이트 텍스트 스타일 */
+.insight-text {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* 인사이트 아이템 스타일 */
+.insight-item {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.insight-item:last-child {
+  margin-bottom: 0;
+}
+
+.insight-item:hover {
+  border-color: #ffe1d2;
+  box-shadow: 0 2px 6px rgba(255, 225, 210, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* 키워드 아이템 스타일 개선 */
+.keyword-item {
+  background: #ffe1d2;
+  color: #4a4a4a;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #ffd4c2;
+  display: inline-block;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.keyword-item:hover {
+  background: #ffd4c2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 212, 194, 0.3);
+}
+
+/* 키워드 리스트 컨테이너 */
+.keyword-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.keyword-item {
+  background: #ffe1d2;
+  color: #4a4a4a;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #ffd4c2;
+}
+
+.keyword-insights {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.5;
+}
+
+/* ===== 전체 평가 ===== */
+.overall-assessment {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.5;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ===== 로딩 상태 ===== */
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #999999;
+  font-size: 16px;
+}
+
+.chart-loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #ffe1d2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== 차트 호버 효과 ===== */
+.chart-canvas-container:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* ===== 섹션 호버 효과 ===== */
+.chart-section:hover,
+.emotion-trend-text:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* ===== 스크롤바 스타일링 (Webkit 브라우저용) ===== */
+.emotion-trend-text::-webkit-scrollbar {
+  width: 8px;
+}
+
+.emotion-trend-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.emotion-trend-text::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.emotion-trend-text::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* ===== 반응형 디자인 ===== */
+@media (max-width: 768px) {
+  .seven-chart-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .chart-right-frame {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .chart-canvas-container {
+    height: 200px;
+  }
+  
+  .radar-chart-container {
+    height: 200px;
+  }
+}

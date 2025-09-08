@@ -44,8 +44,41 @@ class PopupManager {
     this.closeBtn.focus();
   }
 
+  showConfirm(message, title = '확인', onConfirm, onCancel) {
+    this.popupMessage.textContent = message;
+    document.querySelector('.popup-title').textContent = title;
+    
+    // 확인/취소 버튼 표시
+    this.confirmBtn.style.display = 'inline-block';
+    this.closeBtn.innerHTML = '&times;'; // X 표시로 변경
+    
+    // 이벤트 리스너 설정
+    const handleConfirm = () => {
+      this.hide();
+      if (onConfirm) onConfirm();
+      this.confirmBtn.removeEventListener('click', handleConfirm);
+      this.closeBtn.removeEventListener('click', handleCancel);
+    };
+    
+    const handleCancel = () => {
+      this.hide();
+      if (onCancel) onCancel();
+      this.confirmBtn.removeEventListener('click', handleConfirm);
+      this.closeBtn.removeEventListener('click', handleCancel);
+    };
+    
+    this.confirmBtn.addEventListener('click', handleConfirm);
+    this.closeBtn.addEventListener('click', handleCancel);
+    
+    this.popupOverlay.style.display = 'flex';
+    this.confirmBtn.focus();
+  }
+
   hide() {
     this.popupOverlay.style.display = 'none';
+    
+    // 버튼 상태 초기화
+    this.closeBtn.innerHTML = '&times;'; // X 표시로 초기화
   }
 
   isVisible() {

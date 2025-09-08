@@ -86,7 +86,7 @@
 }
 
 .popup-confirm-btn {
-  background: #4a90e2;
+  background: #fba9a1;
   color: white;
   border: none;
   padding: 12px 32px;
@@ -98,5 +98,5 @@
 }
 
 .popup-confirm-btn:hover {
-  background: #357abd;
+  background: #f78f87;
 } 

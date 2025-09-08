@@ -259,12 +259,8 @@ function renderDiaryList(diaries) {
         const userDiaryHTML = userDiaries.map(diary => {
             const date = new Date(diary.timestamp).toLocaleDateString('ko-KR');
             return `
-                <div class="diary-item">
-                    <div class="diary-item-header">
-                        <span class="diary-date">${date}</span>
-                        <span class="diary-source manual">직접 작성</span>
-                    </div>
-                    <div class="diary-content">${diary.content.substring(0, 200)}${diary.content.length > 200 ? '...' : ''}</div>
+                <div class="diary-item" data-diary-id="${diary.id}">
+                    <div class="diary-date">${date}</div>
                 </div>
             `;
         }).join('');
@@ -278,17 +274,95 @@ function renderDiaryList(diaries) {
         const aiDiaryHTML = aiDiaries.map(diary => {
             const date = new Date(diary.timestamp).toLocaleDateString('ko-KR');
             return `
-                <div class="diary-item">
-                    <div class="diary-item-header">
-                        <span class="diary-date">${date}</span>
-                        <span class="diary-source ai">AI 생성</span>
-                    </div>
-                    <div class="diary-content">${diary.content.substring(0, 200)}${diary.content.length > 200 ? '...' : ''}</div>
+                <div class="diary-item" data-diary-id="${diary.id}">
+                    <div class="diary-date">${date}</div>
                 </div>
             `;
         }).join('');
         aiDiaryList.innerHTML = aiDiaryHTML;
     }
+    
+    // 일기 아이템 클릭 이벤트 추가
+    setupDiaryItemClickEvents();
+}
+
+// 일기 아이템 클릭 이벤트 설정
+function setupDiaryItemClickEvents() {
+    const diaryItems = document.querySelectorAll('.diary-item');
+    
+    diaryItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const diaryId = item.getAttribute('data-diary-id');
+            showDiaryDetail(diaryId);
+        });
+    });
+}
+
+// 일기 상세보기 표시 (템플릿 전환)
+async function showDiaryDetail(diaryId) {
+    try {
+        const response = await fetch(`/study/diary/${diaryId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            }
+        });
+        
+        if (response.ok) {
+            const diary = await response.json();
+            displayDiaryDetail(diary);
+        } else {
+            if (window.popupManager) {
+                window.popupManager.show('일기를 불러오는데 실패했습니다.', "알림");
+            } else {
+                alert('일기를 불러오는데 실패했습니다.');
+            }
+        }
+    } catch (error) {
+        console.error('일기 상세보기 로드 오류:', error);
+        if (window.popupManager) {
+            window.popupManager.show('일기를 불러오는데 실패했습니다.', "알림");
+        } else {
+            alert('일기를 불러오는데 실패했습니다.');
+        }
+    }
+}
+
+// 일기 상세보기 화면 표시 (템플릿 전환)
+function displayDiaryDetail(diary) {
+    const listView = document.getElementById('diary-list-view');
+    const detailView = document.getElementById('diary-detail-view');
+    const dateElement = document.getElementById('diary-detail-date');
+    const timeElement = document.getElementById('diary-detail-time');
+    const textElement = document.getElementById('diary-detail-text');
+    
+    // 날짜 표시
+    const date = new Date(diary.timestamp);
+    dateElement.textContent = date.toLocaleDateString('ko-KR');
+    
+    // 시간 표시
+    timeElement.textContent = date.toLocaleTimeString('ko-KR', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // 내용 표시
+    textElement.textContent = diary.content;
+    
+    // 화면 전환
+    listView.classList.add('hidden');
+    detailView.classList.remove('hidden');
+    
+    // 뒤로가기 버튼 이벤트
+    document.getElementById('diary-back-btn').addEventListener('click', goBackToList);
+}
+
+// 목록으로 돌아가기
+function goBackToList() {
+    const listView = document.getElementById('diary-list-view');
+    const detailView = document.getElementById('diary-detail-view');
+    
+    detailView.classList.add('hidden');
+    listView.classList.remove('hidden');
 }
 
 // 전역 함수로 등록

@@ -5,12 +5,28 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-
+from sqlalchemy import select
+from app.core.connection import get_db
+from app.models.db.session_summary import GPTSessionSummary
 from app.services.sparse_service import SparseIndexService
 from app.services.vector_db_service import VectorDBService
+from app.config.settings import settings
+import redis
 
 logger = logging.getLogger(__name__)
 
+def _local_time_fields() -> Dict[str, Any]:
+    now = datetime.now()
+    return {
+        "local_time": now.strftime("%Y-%m-%d %H:%M:%S.%f %z"),
+        "epoch_ms": int(now.timestamp() * 1000),
+    }
+
+redis_client = redis.Redis(
+    host=settings.redis_host,
+    port=settings.redis_port,
+    db=settings.redis_db
+)
 
 @dataclass
 class DocAgg:
@@ -65,30 +81,8 @@ class HybridMemoryService:
         self.DENSE_K = dense_k
 
     # ---------------------- Public API ----------------------
-    def hybrid_retrieve(
-        self,
-        user_query: str,
-        user_id: int,
-        yymmdd: str,
-        top_k: int = 12,   # doc_id 집계 후 상위 N (버킷 선정용으로 넉넉히)
-    ) -> List[Dict[str, Any]]:
-        """
-        반환(정렬: final_score desc):
-        [
-          {
-            "doc_id": str,
-            "session_id": str,
-            "user_id": int,
-            "yymmdd": str|None,
-            "score": float,          # final_score
-            "n_hits": int,
-            "bucket": "high"|"middle"|"low",
-            "types": list[str],
-            "modalities": list[str],
-          },
-          ...
-        ]
-        """
+    def hybrid_retrieve(self, user_query: str, user_id: int, yymmdd: str, top_k: int = 12) -> List[Dict[str, Any]]:
+        _t0_all = datetime.now().timestamp()
         q = (user_query or "").strip()
         token_cnt = self._count_tokens(q)
         w_idx, w_type = self._choose_weights(token_cnt)
@@ -96,12 +90,74 @@ class HybridMemoryService:
             f"HYB_START user_id={user_id} yymmdd={yymmdd} token_cnt={token_cnt} "
             f"w_sparse={w_idx['sparse']} w_dense={w_idx['dense']} w_type={w_type}"
         )
+        _f0 = _local_time_fields()
+        logger.info(
+            "HYB_START_PARAMS uid=%s yymmdd=%s token_cnt=%s w_sparse=%s w_dense=%s w_type=%s local_time=%s epoch_ms=%s",
+            user_id,
+            yymmdd,
+            token_cnt,
+            w_idx.get("sparse"),
+            w_idx.get("dense"),
+            w_type,
+            _f0.get("local_time"),
+            _f0.get("epoch_ms"),
+        )
+
+        # ✅ 2-0) Redis 진행중 세션 스냅샷
+        inprog: set[str] = set()
+        try:
+            raw = redis_client.smembers(f"emb_inprog:{user_id}")
+            inprog = {s.decode() if isinstance(s, bytes) else str(s) for s in (raw or set())}
+        except Exception:
+            logger.exception("HYB_WARN redis_smembers_failed")
+        _f_inp = _local_time_fields()
+        _sample = list(inprog)[:5]
+        logger.info(
+            "HYB_INPROG_SNAPSHOT uid=%s count=%s sample=%s local_time=%s epoch_ms=%s",
+            user_id,
+            len(inprog),
+            _sample,
+            _f_inp.get("local_time"),
+            _f_inp.get("epoch_ms"),
+        )
 
         # 1) 인덱스별 검색
+        _f_ss = _local_time_fields()
+        logger.info("HYB_SPARSE_START top_k=%s local_time=%s epoch_ms=%s", self.SPARSE_K, _f_ss.get("local_time"), _f_ss.get("epoch_ms"))
+        _t_sparse = datetime.now().timestamp()
         sparse_hits = self._search_sparse(q, user_id=user_id)
+        _dur_sparse = int((datetime.now().timestamp() - _t_sparse) * 1000)
+        _f_se = _local_time_fields()
+        logger.info("HYB_SPARSE_OK hits=%s duration_ms=%s local_time=%s epoch_ms=%s", len(sparse_hits), _dur_sparse, _f_se.get("local_time"), _f_se.get("epoch_ms"))
+
+        _f_ds = _local_time_fields()
+        logger.info("HYB_DENSE_START top_k=%s local_time=%s epoch_ms=%s", self.DENSE_K, _f_ds.get("local_time"), _f_ds.get("epoch_ms"))
+        _t_dense = datetime.now().timestamp()
         dense_hits = self._search_dense(q, user_id=user_id)
+        _dur_dense = int((datetime.now().timestamp() - _t_dense) * 1000)
+        _f_de = _local_time_fields()
+        logger.info("HYB_DENSE_OK hits=%s duration_ms=%s local_time=%s epoch_ms=%s", len(dense_hits), _dur_dense, _f_de.get("local_time"), _f_de.get("epoch_ms"))
+
+        # ✅ 2-1) 진행중 세션 배제(클라이언트 필터)
+        if inprog:
+            before_s, before_d = len(sparse_hits), len(dense_hits)
+            sparse_hits = [h for h in sparse_hits if str(h.get("session_id")) not in inprog]
+            dense_hits  = [h for h in dense_hits  if str(h.get("session_id")) not in inprog]
+            _f_fil = _local_time_fields()
+            logger.info(
+                "HYB_FILTER_INPROG_RESULT uid=%s sparse_before=%s sparse_after=%s dense_before=%s dense_after=%s local_time=%s epoch_ms=%s",
+                user_id,
+                before_s,
+                len(sparse_hits),
+                before_d,
+                len(dense_hits),
+                _f_fil.get("local_time"),
+                _f_fil.get("epoch_ms"),
+            )
 
         logger.info(f"HYB_FETCH sparse_n={len(sparse_hits)} dense_n={len(dense_hits)}")
+
+
 
         # 2) Weighted RRF 결합(고유조합 카운팅 포함)
         fused = self._weighted_rrf_aggregate(
@@ -132,7 +188,16 @@ class HybridMemoryService:
                 "types": sorted(list(d.types)),
                 "modalities": sorted(list(d.modalities)),
             })
-        logger.info(f"HYB_TOP doc_ids={[x['doc_id'] for x in out]}")
+        _dur_all = int((datetime.now().timestamp() - _t0_all) * 1000)
+        _f_top = _local_time_fields()
+        logger.info(
+            "HYB_TOP doc_ids=%s n=%s duration_ms=%s local_time=%s epoch_ms=%s",
+            [x["doc_id"] for x in out],
+            len(out),
+            _dur_all,
+            _f_top.get("local_time"),
+            _f_top.get("epoch_ms"),
+        )
         return out
 
     # ---------------------- Retrieval ----------------------
@@ -156,6 +221,14 @@ class HybridMemoryService:
                     "yymmdd": meta.get("yymmdd") or yymmdd,
                     "metadata": meta,
                 })
+                try:
+                    _f = _local_time_fields()
+                    logger.debug(
+                        "HYB_FUSE_ADD doc_id=%s index=%s type=%s rank=%s local_time=%s epoch_ms=%s",
+                        doc_id, "sparse", typ, i, _f.get("local_time"), _f.get("epoch_ms")
+                    )
+                except Exception:
+                    pass
         except Exception:
             logger.exception("HYB_ERROR sparse_search_failed")
         return hits
@@ -163,8 +236,28 @@ class HybridMemoryService:
     def _search_dense(self, q: str, *, user_id: int) -> List[Dict[str, Any]]:
         hits: List[Dict[str, Any]] = []
         try:
+            where = {"user_id": user_id}
+            try:
+                # where 감사 로깅: 빈 $in/$nin 여부 포함(상위 컨텍스트 포함)
+                in_empty = sum(
+                    1 for v in (where or {}).values()
+                    if isinstance(v, dict) and "$in" in v and isinstance(v.get("$in"), list) and len(v.get("$in", [])) == 0
+                )
+                nin_empty = sum(
+                    1 for v in (where or {}).values()
+                    if isinstance(v, dict) and "$nin" in v and isinstance(v.get("$nin"), list) and len(v.get("$nin", [])) == 0
+                )
+                logger.info(
+                    "WHERE_AUDIT_DENSE uid=%s in_empty=%s nin_empty=%s where=%s",
+                    user_id,
+                    in_empty,
+                    nin_empty,
+                    where,
+                )
+            except Exception:
+                logger.exception("WHERE_AUDIT_DENSE_LOG_FAIL uid=%s", user_id)
             raw = self.dense.search_similar(
-                q, top_k=self.DENSE_K, where={"user_id": user_id}, return_similarity=True
+                q, top_k=self.DENSE_K, where=where, return_similarity=True
             )
             # similarity 내림차순
             raw = sorted(raw, key=lambda x: (x.get("similarity") is None, -(x.get("similarity") or -1e9)))
@@ -184,6 +277,14 @@ class HybridMemoryService:
                     "yymmdd": meta.get("yymmdd") or yymmdd,
                     "metadata": meta,
                 })
+                try:
+                    _f = _local_time_fields()
+                    logger.debug(
+                        "HYB_FUSE_ADD doc_id=%s index=%s type=%s rank=%s local_time=%s epoch_ms=%s",
+                        doc_id, "dense", typ, i, _f.get("local_time"), _f.get("epoch_ms")
+                    )
+                except Exception:
+                    pass
         except Exception:
             logger.exception("HYB_ERROR dense_search_failed")
         return hits
@@ -286,6 +387,19 @@ class HybridMemoryService:
             d.bucket = "middle"
         else:
             d.bucket = "low"
+    
+
+    # ----------------------진행중인 임베딩 프롬프트에 넣기 위해 가져오는 부분 ----------------------
+    def get_inprog_session_ids(self, user_id: int) -> list[str]:
+        try:
+            raw = redis_client.smembers(f"emb_inprog:{user_id}")
+            return [s.decode() if isinstance(s, bytes) else str(s) for s in (raw or set())]
+        except Exception:
+            logger.exception("HYB_WARN get_inprog_session_ids redis_smembers_failed uid=%s", user_id)
+            return []
+
+
+
 
     # ---------------------- Utils ----------------------
     def _count_tokens(self, q: str) -> int:
@@ -345,5 +459,19 @@ class HybridMemoryService:
         else:
             # 세션 단위 doc_id를 기본으로(동일 세션 묶임)
             doc_id = f"{user_id}:{session_id}"
-
+        try:
+            _f = _local_time_fields()
+            logger.info(
+                "HYB_ID_RESOLVE source=%s doc_id=%s session_id=%s user_id=%s yymmdd=%s has_doc_id=%s local_time=%s epoch_ms=%s",
+                source,
+                doc_id,
+                session_id,
+                user_id,
+                yymmdd,
+                bool(meta.get("doc_id")),
+                _f.get("local_time"),
+                _f.get("epoch_ms"),
+            )
+        except Exception:
+            pass
         return doc_id, session_id, yymmdd

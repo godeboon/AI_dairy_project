@@ -1,148 +1,100 @@
-# app/services/embedding_service.py
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, Optional
-
 from app.services.vector_db_service import VectorDBService
 from app.models.db.session_summary import GPTSessionSummary
 from app.core.connection import get_db
 
-# ✅ Sparse 인덱스
-from app.services.sparse_service import SparseIndexService
-
 logger = logging.getLogger(__name__)
 
-
 class EmbeddingService:
-    """
-    GPTSessionSummary → Chroma(Dense) & SQLite FTS5(Sparse) 동시 인덱싱 서비스
-    저장 단위(type):
-      - "summary"       : 400자 요약문 1개
-      - "key_sentence"  : 핵심 문장 1~2개
-      - "keywords_all"  : 키워드 전체 문자열
-      - "keyword" (×N)  : 개별 키워드
-    """
-    def __init__(
-        self,
-        vector_service: Optional[VectorDBService] = None,
-        sparse_service: Optional[SparseIndexService] = None
-    ):
-        self.vdb = vector_service or VectorDBService()
-        self.sparse = sparse_service or SparseIndexService()
+    def __init__(self):
+        self.vdb = VectorDBService()
 
-    # ---------- Public ----------
-    def create_session_embeddings(self, user_id: int, session_id: str) -> Dict[str, Any]:
+    def create_session_embeddings(self, user_id: int, session_id: str):
+        """세션의 summary/keywords를 임베딩 저장 → 배치 끝 persist() 한 번."""
         db = None
         try:
-            logger.info(f"▶ 임베딩 시작: user_id={user_id}, session_id={session_id}")
+            logger.info("▶ EMB_START uid=%s sid=%s", user_id, session_id)
 
-            # 1) DB 조회
             db = next(get_db())
-            row: GPTSessionSummary | None = db.query(GPTSessionSummary).filter(
-                GPTSessionSummary.user_id == user_id,
-                GPTSessionSummary.session_id == session_id
-            ).first()
+            rec = (
+                db.query(GPTSessionSummary)
+                .filter(
+                    GPTSessionSummary.user_id == user_id,
+                    GPTSessionSummary.session_id == session_id,
+                )
+                .first()
+            )
+            if not rec:
+                logger.warning("⚠️ 세션 데이터 없음 uid=%s sid=%s", user_id, session_id)
+                return
 
-            if not row:
-                return {"ok": False, "reason": "no_session_row"}
+            summary: str = rec.summary or ""
+            keywords_json = rec.keywords
 
-            summary_text = (row.summary or "").strip()
-            key_sentence_text = (getattr(row, "key_sentence", "") or "").strip()
-            keywords_raw = getattr(row, "keywords", [])
+            processed_keywords = self._preprocess_keywords(keywords_json)
+            individual_keywords = self._extract_individual_keywords(keywords_json)
 
-            # 2) 키워드 정규화
-            keywords: List[str] = self._as_list(keywords_raw)
-            keywords_all_text: str = self._join_keywords_lines(keywords)
-            keywords_all_human: str = self._join_keywords_human(keywords)
+            base_meta = self._create_metadata(user_id, session_id)
 
-            # 3) 공통 메타
-            base_meta = self._base_metadata(user_id, session_id)
+            # --- upsert with ids=doc_id (공식 래퍼만 사용) ---
+            if summary:
+                doc_id = self.vdb.build_id(user_id, session_id, "summary", summary)
+                self.vdb.upsert_document(text=summary, metadata={**base_meta, "type": "summary", "doc_id": doc_id}, doc_id=doc_id)
 
-            # 4) 업서트 대상: (text, meta, doc_id)
-            upserts: List[Tuple[str, Dict[str, Any], str]] = []
+            if processed_keywords:
+                doc_id = self.vdb.build_id(user_id, session_id, "keywords_all", processed_keywords)
+                self.vdb.upsert_document(text=processed_keywords, metadata={**base_meta, "type": "keywords_all", "doc_id": doc_id}, doc_id=doc_id)
 
-            if summary_text:
-                did = self.vdb.build_id(user_id, session_id, "summary", summary_text)
-                meta = {**base_meta, "type": "summary", "doc_id": did}
-                upserts.append((summary_text, meta, did))
-
-            if key_sentence_text:
-                did = self.vdb.build_id(user_id, session_id, "key_sentence", key_sentence_text)
-                meta = {**base_meta, "type": "key_sentence", "doc_id": did}
-                upserts.append((key_sentence_text, meta, did))
-
-            if keywords_all_text:
-                did = self.vdb.build_id(user_id, session_id, "keywords_all", keywords_all_text)
-                meta = {
-                    **base_meta,
-                    "type": "keywords_all",
-                    "keywords_all": keywords_all_human,
-                    "doc_id": did
-                }
-                upserts.append((keywords_all_text, meta, did))
-
-            for k in keywords:
-                k = k.strip()
-                if not k:
+            for kw in individual_keywords:
+                if not kw:
                     continue
-                did = self.vdb.build_id(user_id, session_id, "keyword", k)
-                meta = {**base_meta, "type": "keyword", "keyword": k, "doc_id": did}
-                upserts.append((k, meta, did))
+                doc_id = self.vdb.build_id(user_id, session_id, "keyword", kw)
+                self.vdb.upsert_document(text=kw, metadata={**base_meta, "type": "keyword", "keyword": kw, "doc_id": doc_id}, doc_id=doc_id)
 
-            # 5) Dense + Sparse 동시 업서트
-            ids: List[str] = []
-            for text, meta, doc_id in upserts:
-                # Dense(Chroma)
-                self.vdb.upsert_document(text=text, metadata=meta, doc_id=doc_id, persist=False)
-                # Sparse(FTS5)
-                self.sparse.upsert_document(text=text, metadata=meta)
-                ids.append(doc_id)
+            # 배치 끝 플러시(다른 프로세스에서 즉시 조회 가능하도록)
+            # self.vdb.persist()
+            logger.info("✅ EMB_DONE uid=%s sid=%s", user_id, session_id)
 
-            # Dense persist
+        except Exception as e:
+            logger.exception("❌ EMB_FAIL uid=%s sid=%s err=%s", user_id, session_id, type(e).__name__)
+            raise
+        finally:
             try:
-                self.vdb.vectorstore.persist()
+                if db is not None:
+                    db.close()
             except Exception:
                 pass
 
-            logger.info(f"✅ 임베딩 완료: user_id={user_id}, session_id={session_id}, count={len(ids)}")
-            return {"ok": True, "count": len(ids), "ids": ids}
-
-        except Exception as e:
-            logger.exception("❌ 임베딩 실패")
-            return {"ok": False, "reason": "exception", "error": str(e)}
-        finally:
-            if db:
-                db.close()
-
-    # ---------- Helpers ----------
-    def _as_list(self, keywords_json_or_list) -> List[str]:
+    # ------------- helpers -------------
+    def _preprocess_keywords(self, keywords_json):
         try:
-            if isinstance(keywords_json_or_list, list):
-                return [str(x).strip() for x in keywords_json_or_list if str(x).strip()]
-            if isinstance(keywords_json_or_list, str):
-                s = keywords_json_or_list.strip()
-                if s.startswith("[") and s.endswith("]"):
-                    arr = json.loads(s)
-                    return [str(x).strip() for x in arr if str(x).strip()]
-                if "," in s:
-                    return [t.strip() for t in s.split(",") if t.strip()]
-                return [s] if s else []
-        except Exception:
-            logger.warning("keywords 파싱 실패", exc_info=True)
-        return []
+            if isinstance(keywords_json, str):
+                keywords = json.loads(keywords_json)
+            else:
+                keywords = keywords_json or []
+            return ", ".join([str(k) for k in keywords if k])
+        except Exception as e:
+            logger.error("❌ 키워드 전처리 실패: %s", e)
+            return ""
 
-    def _join_keywords_lines(self, keywords: List[str]) -> str:
-        return "\n".join(keywords) if keywords else ""
+    def _extract_individual_keywords(self, keywords_json):
+        try:
+            if isinstance(keywords_json, str):
+                keywords = json.loads(keywords_json)
+            else:
+                keywords = keywords_json or []
+            return [str(k) for k in keywords if k]
+        except Exception as e:
+            logger.error("❌ 개별 키워드 추출 실패: %s", e)
+            return []
 
-    def _join_keywords_human(self, keywords: List[str]) -> str:
-        return ", ".join(keywords) if keywords else ""
-
-    def _base_metadata(self, user_id: int, session_id: str) -> Dict[str, Any]:
+    def _create_metadata(self, user_id: int, session_id: str):
         now = datetime.now()
         return {
             "user_id": user_id,
             "session_id": session_id,
-            "timestamp": now.isoformat(timespec="seconds"),
+            "timestamp": now.isoformat(),
             "yymmdd": now.strftime("%y%m%d"),
         }

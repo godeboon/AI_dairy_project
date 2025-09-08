@@ -141,10 +141,19 @@ document.addEventListener('DOMContentLoaded', function() {
       localStorage.setItem('notifications', JSON.stringify(this.storedNotifications));
       console.log('💾 localStorage에 알림 저장 완료');
       
-      // study 관련 알림이면 즉시 전송
-      if (data.type === 'diary_available' || data.type === 'diary_unavailable' || data.type === 'encourage_available') {
-        this.dispatchToAllComponents(data);
+      // final_report일 때 별도 데이터 저장
+      if (data.type === 'final_report') {
+        localStorage.setItem('final_report_data', JSON.stringify({
+          report_id: data.report_id,
+          timestamp: data.timestamp
+        }));
+        console.log('💾 final_report_data 저장 완료');
       }
+      
+     // 특정 타입의 알림이면 즉시 전송 (우선순위 처리)
+       if (data.type === 'diary_available' || data.type === 'diary_unavailable' || data.type === 'encourage_available' || data.type === 'seven_day_report' || data.type === 'chart_loading_complete' || data.type === 'final_report') {
+         this.dispatchToAllComponents(data);
+       }
     },
     
     // 모든 컴포넌트로 전역 전달
@@ -196,6 +205,79 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           console.log('❌ encourage_unavailable 알림 없음 또는 비활성');
         }
+        
+         // seven day report 복원 (analysis_id 비교 후 조건부 복원)
+         const sevenDayReport = this.storedNotifications['seven_day_report'];
+         if (sevenDayReport && sevenDayReport.isActive) {
+           // 로컬스토리지에서 기존 데이터 확인
+           const existingData = localStorage.getItem('seven_day_report_data');
+           
+           if (existingData) {
+             try {
+               const storedData = JSON.parse(existingData);
+               const storedAnalysisId = storedData.analysis_id;
+               const restoredAnalysisId = sevenDayReport.analysis_id;
+               
+               if (storedAnalysisId === restoredAnalysisId) {
+                 console.log('✅ 동일한 analysis_id, seven day report 복원 생략');
+               } else {
+                 console.log('✅ 다른 analysis_id, seven day report 복원 실행');
+                 this.dispatchToAllComponents(sevenDayReport);
+               }
+             } catch (error) {
+               console.error('❌ 기존 데이터 파싱 실패:', error);
+               // 파싱 실패 시 복원 실행
+               this.dispatchToAllComponents(sevenDayReport);
+             }
+           } else {
+             // 기존 데이터가 없으면 복원 실행
+             console.log('✅ 기존 데이터 없음, seven day report 복원 실행');
+             this.dispatchToAllComponents(sevenDayReport);
+           }
+         } else {
+           console.log('❌ seven day report 알림 없음 또는 비활성');
+         }
+         
+         // chart loading complete 복원
+         const chartLoadingComplete = this.storedNotifications['chart_loading_complete'];
+         if (chartLoadingComplete && chartLoadingComplete.isActive) {
+           console.log('✅ chart loading complete 알림 복원:', chartLoadingComplete);
+           this.dispatchToAllComponents(chartLoadingComplete);
+         } else {
+           console.log('❌ chart loading complete 알림 없음 또는 비활성');
+         }
+      } else if (page === 'constellation') {
+        // final_report 복원 (report_id 비교 후 조건부 복원)
+        const finalReport = this.storedNotifications['final_report'];
+        if (finalReport && finalReport.isActive) {
+          // 로컬스토리지에서 기존 데이터 확인
+          const existingData = localStorage.getItem('final_report_data');
+          
+          if (existingData) {
+            try {
+              const storedData = JSON.parse(existingData);
+              const storedReportId = storedData.report_id;
+              const restoredReportId = finalReport.report_id;
+              
+              if (storedReportId === restoredReportId) {
+                console.log('✅ 동일한 report_id, final_report 복원 생략');
+              } else {
+                console.log('✅ 다른 report_id, final_report 복원 실행');
+                this.dispatchToAllComponents(finalReport);
+              }
+            } catch (error) {
+              console.error('❌ 기존 데이터 파싱 실패:', error);
+              // 파싱 실패 시 복원 실행
+              this.dispatchToAllComponents(finalReport);
+            }
+          } else {
+            // 기존 데이터가 없으면 복원 실행
+            console.log('✅ 기존 데이터 없음, final_report 복원 실행');
+            this.dispatchToAllComponents(finalReport);
+          }
+        } else {
+          console.log('❌ final_report 알림 없음 또는 비활성');
+        }
       }
     },
     
@@ -239,6 +321,14 @@ document.addEventListener('DOMContentLoaded', function() {
                              (encourageUnavailableNotification && encourageUnavailableNotification.isActive)
         };
       }
+      
+      if (page === 'study_chart') {
+        const sevenDayReportNotification = this.storedNotifications['seven_day_report'];
+        
+        return {
+          hasAnyNotification: sevenDayReportNotification && sevenDayReportNotification.isActive
+        };
+      }
     }
   };
 
@@ -246,8 +336,91 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+  // final_report 알림 리스너 등록 (한 번만)
+  function bindFinalReportListenerOnce() {
+    if (window.__finalReportListenerBound) return;
+    window.__finalReportListenerBound = true;
+    
+    console.log('📋 final_report 리스너 등록됨');
+    
+    document.addEventListener('final_report', function(event) {
+      const data = event.detail;
+      
+      if (data.type === 'final_report') {
+        console.log('📋 final_report 알림 수신:', data);
+        
+        // 1. 현재 활성화된 메인 탭의 첫 번째 서브탭(알림)에 "1" 표시
+        const activeMainTab = document.querySelector('.tab.active');
+        if (activeMainTab) {
+          // 서브탭 컨테이너에서 첫 번째 서브탭(알림) 찾기
+          const subTabsContainer = document.querySelector('.sub-tabs');
+          if (subTabsContainer) {
+            const firstSubTab = subTabsContainer.querySelector('.sub-tab:first-child');
+            
+            if (firstSubTab) {
+              // 기존 알림 숫자 제거
+              const existingBadge = firstSubTab.querySelector('.notification-badge');
+              if (existingBadge) {
+                existingBadge.remove();
+              }
+              
+              // 새 알림 배지 추가
+              const badge = document.createElement('span');
+              badge.className = 'notification-badge';
+              badge.textContent = '1';
+              badge.style.cssText = `
+                background: #ff4444;
+                color: white;
+                border-radius: 50%;
+                padding: 2px 6px;
+                font-size: 12px;
+                margin-left: 5px;
+                display: inline-block;
+                min-width: 18px;
+                text-align: center;
+                animation: pulse 1s infinite;
+              `;
+              firstSubTab.appendChild(badge);
+            }
+          }
+        }
+      
+      // 2. 팝업 띄우기 (showConfirm 사용)
+      if (window.popupManager) {
+        window.popupManager.showConfirm(
+          '분석리포트가 완성되었습니다. 확인하시겠습니까?',
+          '분석 리포트 완성',
+          function() {
+            // 확인 버튼 클릭 시 constellation 페이지로 전환
+            const constellationTab = document.querySelector('[data-tab="constellation"]');
+            if (constellationTab) {
+              constellationTab.click();
+            }
+          },
+          function() {
+            // 취소 버튼 클릭 시 (아무것도 안함)
+            console.log('사용자가 취소를 선택함');
+          }
+        );
+      } else {
+        // popupManager가 없으면 기본 confirm 사용
+        const confirmed = confirm('분석리포트가 완성되었습니다. 확인하시겠습니까?');
+        if (confirmed) {
+          const constellationTab = document.querySelector('[data-tab="constellation"]');
+          if (constellationTab) {
+            constellationTab.click();
+          }
+        }
+      }
+    }
+  });
+  }
+
   // 전역 알림 관리자 초기화 (localStorage에서 복원)
   window.globalNotificationManager.initializeFromStorage();
+
+  // final_report 리스너 한 번만 등록
+  bindFinalReportListenerOnce();
 
   // WebSocket 연결 시작
   connectWebSocket();
@@ -273,6 +446,11 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(res => res.text())
       .then(html => {
         mainContent.innerHTML = html;
+        import('/static/js/components/space/section.js').then(() => {
+          if (window.initSpaceSection) {
+            window.initSpaceSection();
+          }
+        });
       });
   }
 
@@ -324,6 +502,35 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
 
+  // 별자리(리포트) 탭 콘텐츠 로드 함수
+  function loadConstellationSection() {
+    fetch('/templates/components/constellation/report.html')
+      .then(response => response.text())
+      .then(html => {
+        mainContent.innerHTML = html;
+        
+        // JS 모듈 로드
+        console.log('constellation/report.js 로드 시작');
+        import('/static/js/components/constellation/report.js').then(() => {
+          console.log('constellation/report.js 로드 완료');
+          
+          // 초기화 함수 호출
+          if (window.initConstellationUI) {
+            console.log('initConstellationUI 함수 호출');
+            window.initConstellationUI();
+          } else {
+            console.error('initConstellationUI 함수를 찾을 수 없습니다.');
+          }
+        }).catch(err => {
+          console.error('constellation/report.js 로드 실패:', err);
+        });
+      })
+      .catch(error => {
+        console.error('Constellation report 로드 실패:', error);
+        mainContent.innerHTML = '<div style="padding: 20px; text-align: center;"><p>리포트 기능이 준비 중입니다.</p></div>';
+      });
+  }
+
   // 서브탭 로드 함수 
   function updateSubTabs(tab) {
     if (!subTabs) return;
@@ -348,6 +555,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="sub-tab">일주일 차트</div>
         <div class="sub-tab">하루의 마무리</div>
       `;
+    } else if (tab === 'constellation') {
+      subTabs.innerHTML = `
+        <div class="sub-tab">알림</div>
+        <div class="sub-tab active">분석 리포트</div>
+      `;
+
     } else {
       subTabs.innerHTML = `<div class="sub-tab">알림</div>`;
     }
@@ -379,6 +592,9 @@ document.addEventListener('DOMContentLoaded', function() {
       } else if (this.dataset.tab === 'garden') {
         loadGardenSection();
         updateSubTabs('garden');
+      } else if (this.dataset.tab === 'constellation') {
+        loadConstellationSection();
+        updateSubTabs('constellation');
       } else {
         mainContent.innerHTML = '';
         updateSubTabs();
@@ -450,14 +666,11 @@ document.addEventListener('DOMContentLoaded', function() {
           .catch(err => {
             console.error('sub_chat_list.html 로드 실패:', err);
           });
-
-        // CSS 동적 로드 (이미 링크되어 있지 않으면)
-        if (!document.querySelector('link[href="/static/css/components/chatting/sub_chat_list.css"]')) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = '/static/css/components/chatting/sub_chat_list.css';
-          document.head.appendChild(link);
-        }
+      }
+      
+      // 일주일 차트 클릭 시 콘텐츠 전환
+      if (e.target.textContent.trim() === '일주일 차트') {
+        switchToSevenChartTab();
       }
       
       // 나의 텃밭 클릭 시 콘텐츠 전환
@@ -581,6 +794,44 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
 
+  // 일주일 차트 서브탭 전환 함수
+  function switchToSevenChartTab() {
+    console.log('일주일 차트 서브 탭 클릭됨');
+    
+    // HTML 로드
+    fetch('/templates/components/study/seven_chart.html')
+      .then(res => {
+        console.log('seven_chart.html 응답 상태:', res.status);
+        return res.text();
+      })
+      .then(html => {
+        console.log('seven_chart.html 로드됨');
+        mainContent.innerHTML = html;
+        
+        // JS 모듈 로드
+        console.log('seven_chart.js 로드 시작');
+        import('/static/js/components/study/seven_chart.js').then(() => {
+          console.log('seven_chart.js 로드 완료');
+          
+          // 초기화 함수 호출
+          if (window.initSevenChartUI) {
+            console.log('initSevenChartUI 함수 호출');
+            window.initSevenChartUI();
+          } else {
+            console.error('initSevenChartUI 함수를 찾을 수 없습니다.');
+          }
+        }).catch(err => {
+          console.error('JS 모듈 로드 실패:', err);
+        });
+        
+        console.log('일주일 차트 페이지 로드 완료');
+      })
+      .catch(err => {
+        console.error('seven_chart.html 로드 실패:', err);
+        mainContent.innerHTML = '<p>일주일 차트를 불러오는 중 오류가 발생했습니다.</p>';
+      });
+  }
+
   // diary_reset 이벤트 리스너 추가
   document.addEventListener('diary_reset', function(event) {
     const data = event.detail;
@@ -601,4 +852,5 @@ document.addEventListener('DOMContentLoaded', function() {
   // 전역으로 노출
   window.switchToDiaryGenerateTab = switchToDiaryGenerateTab;
   window.switchToEncourageTab = switchToEncourageTab;
+  window.switchToSevenChartTab = switchToSevenChartTab;
 }); 

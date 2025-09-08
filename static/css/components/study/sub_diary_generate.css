@@ -1,9 +1,9 @@
 /* 일기 생성 컨테이너 */
 .diary-container {
-    background: linear-gradient(135deg, #ffe1d2 0%, #ffccbc 100%);
-    border: 2px solid #ff7a3d;
+    background: #fff;
+    border: 1.5px solid #eee;
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(255, 122, 61, 0.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     padding: 24px;
     margin: 20px;
     font-family: 'Nanum Gothic', sans-serif;
@@ -14,31 +14,31 @@
     display: flex;
     gap: 8px;
     margin-bottom: 24px;
-    border-bottom: 2px solid #ffccbc;
+    border-bottom: 1.5px solid #eee;
     padding-bottom: 16px;
 }
 
 .tab-button {
     padding: 12px 20px;
-    background: #ffe1d2;
-    border: 2px solid #ffccbc;
+    background: #f8f9fa;
+    border: 1.5px solid #eee;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
-    color: #ff7043;
+    color: #666;
 }
 
 .tab-button:hover {
-    background: #ffccbc;
+    background: #e9ecef;
     transform: translateY(-2px);
 }
 
 .tab-button.active {
-    background: #ff7a3d;
+    background: #fba9a1;
     color: white;
-    border-color: #ff7a3d;
-    box-shadow: 0 4px 12px rgba(255, 122, 61, 0.3);
+    border-color: #fba9a1;
+    box-shadow: 0 4px 12px rgba(251, 169, 161, 0.3);
 }
 
 /* 탭 콘텐츠 */
@@ -58,7 +58,7 @@
 
 /* 직접 작성 탭 */
 .diary-editor-container h3 {
-    color: #ff7043;
+    color: #333;
     margin-bottom: 20px;
     font-size: 1.4em;
     text-align: center;
@@ -66,10 +66,10 @@
 
 .editor-wrapper {
     background: white;
-    border: 2px solid #ffccbc;
+    border: 1.5px solid #eee;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 16px rgba(255, 204, 188, 0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 #diary-editor {
@@ -97,7 +97,7 @@
 
 /* AI 생성 탭 */
 .ai-generation-container h3 {
-    color: #ff7043;
+    color: #333;
     margin-bottom: 20px;
     font-size: 1.4em;
     text-align: center;
@@ -113,15 +113,15 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    color: #ff7043;
+    color: #fba9a1;
     font-weight: 500;
 }
 
 .loading-spinner {
     width: 20px;
     height: 20px;
-    border: 3px solid #ffccbc;
-    border-top: 3px solid #ff7a3d;
+    border: 3px solid #e9ecef;
+    border-top: 3px solid #fba9a1;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -133,10 +133,10 @@
 
 .generated-content {
     background: white;
-    border: 2px solid #ffccbc;
+    border: 1.5px solid #eee;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 16px rgba(255, 204, 188, 0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .generated-text {
@@ -155,7 +155,7 @@
 
 /* 일기 목록 탭 */
 .diary-list-container h3 {
-    color: #ff7043;
+    color: #333;
     margin-bottom: 20px;
     font-size: 1.4em;
     text-align: center;
@@ -172,9 +172,9 @@
 /* 컨테이너 박스 스타일 */
 .diary-container-box {
     background: white;
-    border: 3px solid #ffccbc;
+    border: 1.5px solid #eee;
     border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(255, 204, 188, 0.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -182,13 +182,13 @@
 
 /* 컨테이너 헤더 */
 .container-header {
-    background: linear-gradient(135deg, #ffe1d2 0%, #ffccbc 100%);
+    background: #f8f9fa;
     padding: 16px 20px;
-    border-bottom: 2px solid #ffccbc;
+    border-bottom: 1.5px solid #eee;
 }
 
 .container-header h4 {
-    color: #ff7043;
+    color: #333;
     margin: 0;
     font-size: 1.2em;
     text-align: center;
@@ -261,17 +261,17 @@
 
 .diary-item {
     background: white;
-    border: 2px solid #ffccbc;
+    border: 1.5px solid #eee;
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(255, 204, 188, 0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     transition: all 0.3s ease;
 }
 
 .diary-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(255, 204, 188, 0.2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     cursor: pointer;
 }
 
@@ -301,7 +301,8 @@
 
 .diary-date {
     font-weight: 600;
-    color: #ff7043;
+    color: #333333;
+    font-size: 16px;
 }
 
 .diary-source {
@@ -341,23 +342,24 @@
 }
 
 .action-btn.primary {
-    background: #ff7a3d;
+    background: #fba9a1;
     color: white;
 }
 
 .action-btn.primary:hover {
-    background: #ff7043;
+    background: #f78f87;
     transform: translateY(-2px);
 }
 
 .action-btn.secondary {
-    background: #ffccbc;
-    color: #ff7043;
+    background: #f8f9fa;
+    color: #666;
+    border: 1.5px solid #eee;
 }
 
 .action-btn.secondary:hover {
-    background: #ff7a3d;
-    color: white;
+    background: #e9ecef;
+    color: #333;
 }
 
 /* AI 생성 버튼 활성화 스타일 */
@@ -412,4 +414,79 @@
     .diary-container-box {
         min-height: 300px;
     }
+} 
+
+/* 일기 상세보기 화면 */
+.diary-detail-view {
+    background: white;
+    border: 1.5px solid #eee;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 24px;
+    margin: 20px;
+}
+
+.diary-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1.5px solid #eee;
+}
+
+.diary-detail-header h3 {
+    color: #333;
+    margin: 0;
+    font-size: 1.4em;
+    font-weight: 600;
+}
+
+.diary-back-btn {
+    padding: 8px 16px;
+    background: #fba9a1;
+    border: 1.5px solid #fba9a1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.diary-back-btn:hover {
+    background: #f78f87;
+    border-color: #f78f87;
+    transform: translateY(-1px);
+}
+
+.diary-detail-content {
+    padding: 0;
+}
+
+.diary-detail-meta {
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.diary-content-container {
+    background: #f8f9fa;
+    border: 1.5px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 400px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.diary-detail-text {
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4A4A4A;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 } 

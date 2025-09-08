@@ -232,7 +232,7 @@ function showChatHistory(date, messages) {
         <button class="back-btn" onclick="goBackToList()">← 목록으로</button>
         <div id="chat-date">${formattedDate}</div>
       </div>
-      <h2>채팅하기</h2>
+      
       <div class="chat-main">
         <div id="chat-box">
           ${messages.map(msg => `

@@ -6,6 +6,7 @@ from app.api.routers.chat_message_router import router as chat_router
 from app.api.routers.chat_event_router import router as chat_event_router
 from app.api.routers.websocket_router import router as websocket_router
 from app.api.routers.study_router import router as study_router
+from app.api.routers.constellation import router as constellation_router
 import asyncio
 from app.tasks.session_task_runner import session_checker_all_users_loop
 import logging
@@ -64,6 +65,7 @@ app.include_router(chat_router)
 app.include_router(chat_event_router)
 app.include_router(websocket_router)
 app.include_router(study_router)
+app.include_router(constellation_router)
 
 
 @app.on_event("startup")

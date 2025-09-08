@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap');
-
 body {
   background-color: #fdf6f0;
-  font-family: 'Nanum Brush Script', cursive;
+  font-family: system-ui, Arial, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -30,7 +28,7 @@ h2 {
 .subtitle {
   text-align: center;
   color: #666;
-  font-size: 1.1em;
+  font-size: 0.9em;
   margin-bottom: 30px;
 }
 

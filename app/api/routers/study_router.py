@@ -6,14 +6,14 @@ from app.services.encourage_diary_service import EncourageDiaryService
 from app.repositories.today_chat_message_repository import TodayChatMessageRepository
 from app.models.schemas.study_schema import DiaryResponse
 from app.models.db.user_model import User
-from app.models.db.study_model import DiaryReport, EncouragementReport
+from app.models.db.study_model import DiaryReport, EncouragementReport, WeeklyAnalysisReport, DiaryAnalysisReport
 from app.core.connection import get_db
-
+from sqlalchemy.orm import Session
 from datetime import datetime, date
-from sqlalchemy import func
-import redis
 import json
+import redis
 from app.config.settings import settings
+from sqlalchemy import func
 
 router = APIRouter(prefix="/study", tags=["study"])
 
@@ -254,6 +254,38 @@ async def get_diary_list(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"일기 목록 조회 실패: {str(e)}")
 
+# 개별 일기 조회 라우터
+@router.get("/diary/{diary_id}")
+async def get_diary_detail(
+    diary_id: int,
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        # Repository 직접 호출
+        chat_repository = TodayChatMessageRepository()
+        
+        # 특정 일기 조회 (사용자 본인의 일기만)
+        diary = chat_repository.get_diary_by_id(diary_id, current_user.id)
+        
+        if not diary:
+            raise HTTPException(
+                status_code=404, 
+                detail="일기를 찾을 수 없습니다."
+            )
+        
+        # JS에서 기대하는 형태로 변환
+        return {
+            "id": diary.diary_id,
+            "content": diary.content,
+            "source_type": diary.source_type,
+            "timestamp": diary.timestamp.isoformat() if diary.timestamp else None,
+            "user_id": diary.user_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"일기 조회 실패: {str(e)}")
 
 
 @router.get("/encourage/check-condition")
@@ -387,3 +419,125 @@ async def get_today_encouragement(
     except Exception as e:
         print(f"❌ [DEBUG] 전체 에러: {str(e)}")
         raise HTTPException(status_code=500, detail=f"응원 메시지 조회 실패: {str(e)}")
+
+
+# 7일 감정 리포트 데이터 조회
+@router.get("/seven-day-report/{analysis_id}")
+async def get_seven_day_report(
+    analysis_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        print(f"📊 7일 리포트 데이터 조회 시작: analysis_id={analysis_id}, user_id={current_user.id}")
+        
+        # weekly_analysis_report 테이블에서 데이터 조회
+        weekly_data = db.query(WeeklyAnalysisReport).filter(
+            WeeklyAnalysisReport.analysis_id == analysis_id,
+            WeeklyAnalysisReport.user_id == current_user.id
+        ).first()
+        
+        if not weekly_data:
+            raise HTTPException(status_code=404, detail="7일 리포트 데이터를 찾을 수 없습니다.")
+        
+        print(f"🔍 weekly_data 조회 성공: week_start_date={weekly_data.week_start_date}, week_end_date={weekly_data.week_end_date}")
+        
+        # diary_analysis_report 테이블에서 데이터 조회 (date_str 사용)
+        diary_data = db.query(DiaryAnalysisReport).filter(
+            DiaryAnalysisReport.user_id == current_user.id,
+            DiaryAnalysisReport.date_str >= weekly_data.week_start_date.strftime("%Y-%m-%d"),
+            DiaryAnalysisReport.date_str <= weekly_data.week_end_date.strftime("%Y-%m-%d")
+        ).all()
+        
+        print(f"🔍 diary_data 조회 완료: {len(diary_data)}개 일기 분석")
+        
+        # weekly_data 상세 출력
+        print(f"📊 weekly_data.analysis_id: {weekly_data.analysis_id}")
+        print(f"📊 weekly_data.emotion_trend_result: {weekly_data.emotion_trend_result}")
+        print(f"📊 weekly_data.keyword_pattern_result: {weekly_data.keyword_pattern_result}")
+        print(f"📊 weekly_data.comprehensive_pattern_result: {weekly_data.comprehensive_pattern_result}")
+        
+        # diary_data 첫 번째 항목 상세 출력
+        if diary_data:
+            first_diary = diary_data[0]
+            print(f"📊 첫 번째 diary_data.report_id: {first_diary.report_id}")
+            print(f"📊 첫 번째 diary_data.emotions: {first_diary.emotions}")
+            print(f"📊 첫 번째 diary_data.scores: {first_diary.scores}")
+            print(f"📊 첫 번째 diary_data.keywords: {first_diary.keywords}")
+            print(f"📊 첫 번째 diary_data.summary: {first_diary.summary}")
+        
+        # 응답 데이터 구성
+        response_data = {
+            "weekly_analysis": {
+                "id": weekly_data.analysis_id,
+                "start_date": weekly_data.week_start_date.strftime("%m-%d"),
+                "end_date": weekly_data.week_end_date.strftime("%m-%d"),
+                "emotion_trend": weekly_data.emotion_trend_result,
+                "keyword_patterns": weekly_data.keyword_pattern_result,
+                "comprehensive_pattern_result": weekly_data.comprehensive_pattern_result,
+                "overall_assessment": weekly_data.comprehensive_pattern_result.get("overall_assessment", "분석 중") if weekly_data.comprehensive_pattern_result else "분석 중"
+            },
+            "diary_analyses": [
+                {
+                    "id": diary.report_id,
+                    "date_str": diary.date_str,
+                    "emotions": diary.emotions,
+                    "scores": diary.scores,
+                    "keywords": diary.keywords,
+                    "keyword_descriptions": diary.keyword_descriptions,
+                    "summary": diary.summary
+                }
+                for diary in diary_data
+            ]
+        }
+        
+        print(f"📤 최종 응답 데이터 구성 완료:")
+        print(f"📤 response_data.weekly_analysis: {response_data['weekly_analysis']}")
+        print(f"📤 response_data.diary_analyses 개수: {len(response_data['diary_analyses'])}")
+        print(f"✅ 7일 리포트 데이터 조회 완료: {len(diary_data)}개 일기 분석 포함")
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ 7일 리포트 데이터 조회 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"7일 리포트 데이터 조회 실패: {str(e)}")
+
+
+# 차트 로딩 완료 알림
+@router.post("/chart-loading-complete")
+async def chart_loading_complete(
+    data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        print(f"📤 차트 로딩 완료 알림 수신: {data}")
+        
+        # Redis에 구독 발행 (study/section.js가 받을 알림)
+        redis_client = redis.Redis(
+            host=settings.redis_host,
+            port=settings.redis_port,
+            db=settings.redis_db
+        )
+        
+        message = {
+            "type": "chart_loading_complete",
+            "target": "study-section",
+            "message": "7일 리포트 차트 로딩이 완료되었습니다.",
+            "analysis_id": data.get("analysis_id"),
+            "week_start_date": data.get("week_start_date"),
+            "week_end_date": data.get("week_end_date")
+        }
+        
+        channel = f"user_{current_user.id}_chart"
+        message_json = json.dumps(message)
+        
+        print(f"📤 Redis 발행: channel={channel}, message={message_json}")
+        result = redis_client.publish(channel, message_json)
+        print(f"✅ Redis 발행 성공: result={result} (구독자 수)")
+        
+        return {"status": "success", "message": "차트 로딩 완료 알림이 전송되었습니다."}
+        
+    except Exception as e:
+        print(f"❌ 차트 로딩 완료 알림 전송 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"차트 로딩 완료 알림 전송 실패: {str(e)}")
