@@ -1,0 +1,118 @@
+# Python 캐시 파일들
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 가상환경
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# 환경변수 파일들
+.env
+.env.local
+.env.production
+.env.production.local
+.env.*.local
+
+# 데이터베이스 파일들
+*.db
+*.sqlite
+*.sqlite3
+test.db
+your_database.db
+
+# Celery 관련 파일들
+celerybeat-schedule.*
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir
+
+# 로그 파일들
+*.log
+logs/
+
+# 테스트 파일들
+test_*.py
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE 관련 파일들
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 관련 파일들
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git 관련
+.git/
+.gitignore
+
+# Docker 관련
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# 문서 파일들
+README.md
+DEPLOYMENT.md
+DOCKER.md
+LICENSE
+
+# 스크립트 파일들
+deploy.sh
+deploy.bat
+start.sh
+stop.sh
+backup.sh
+setup_env.ps1
+
+# 임시 파일들
+*.tmp
+*.temp
+*.bak
+
+# 이미지 파일들 (필요시 제외)
+*.gif
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tiff
+
+# 기타 개발용 파일들
+chatmessage_delete.py
+check_encouragement.py
+remove_source_type_column.py

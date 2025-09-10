@@ -309,6 +309,46 @@ app/
 
 
 
+## 🐳 Docker 배포
+
+### 빠른 시작
+```bash
+# 1. 프로젝트 클론
+git clone https://github.com/your-username/matabus-chat-api.git
+cd matabus-chat-api
+
+# 2. 환경변수 설정
+cp env.production .env.production
+# 실제 API 키 입력
+
+# 3. 서비스 시작
+chmod +x *.sh
+./start.sh
+```
+
+### 접속 URL
+- **웹 애플리케이션**: http://localhost:8000
+- **Chroma 관리**: http://localhost:8001
+
+### 유용한 명령어
+```bash
+# 서비스 시작
+./start.sh
+
+# 서비스 중지
+./stop.sh
+
+# 데이터 백업
+./backup.sh
+
+# 로그 확인
+docker-compose logs -f
+```
+
+### 상세 가이드
+- [📖 배포 가이드](DEPLOYMENT.md) - 상세한 배포 과정
+- [🐳 Docker 사용법](DOCKER.md) - Docker 관련 모든 정보
+
 ## 📄 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.

@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # Redis 서버
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Chroma 벡터 데이터베이스
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FastAPI 웹 애플리케이션
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - DATABASE_URL=sqlite:///./app.db
+    volumes:
+      - ./static:/app/static
+      - ./templates:/app/templates
+      - app_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Worker
+  celery-worker:
+    build: .
+    depends_on:
+      redis:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    command: python -m celery -A app.services.celery_app:celery worker --loglevel=info --pool=solo
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - DATABASE_URL=sqlite:///./app.db
+    volumes:
+      - ./static:/app/static
+      - ./templates:/app/templates
+      - app_data:/app/data
+    restart: unless-stopped
+
+  # Celery Beat (스케줄러)
+  celery-beat:
+    build: .
+    depends_on:
+      redis:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    command: python -m celery -A app.services.celery_app:celery beat --loglevel=info
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - DATABASE_URL=sqlite:///./app.db
+    volumes:
+      - ./static:/app/static
+      - ./templates:/app/templates
+      - app_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  chroma_data:
+  app_data:
+
+networks:
+  default:
+    name: matabus_network
