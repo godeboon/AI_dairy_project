@@ -1,8 +1,6 @@
 # 환경변수 파일 (보안상 Git에 올리지 않음).
 .env
-.env.local
-.env.production
-.env.staging
+
 
 # Python
 __pycache__/
@@ -148,34 +146,15 @@ check_encouragement.py
 remove_source_type_column.py
 
 # 벡터 DB 및 AI 모델 파일들
-*.faiss
-*.index
-vector_db/
-embeddings/
-*.pkl
-*.pickle
-*.model
-*.bin
-*.safetensors
-models/
-checkpoints/
+
+
 
 # Redis 덤프 파일들
 dump.rdb
 *.rdb
 
-# 세션 및 토큰 파일들
-session_*
-token_*
-*.session
 
-# 보안 설정 파일들 (매우 중요!)
-app/config/settings.py
-config/settings.py
-settings.py
-secrets.py
-credentials.py
-api_keys.py
+
 
 # 임시 파일들
 *.tmp
