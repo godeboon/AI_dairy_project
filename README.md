@@ -51,7 +51,6 @@
 
 <p align="center">
   <img src="letter_glow.gif" alt="응원 메시지 생성" width="45%">
-  <img src="eng.gif" alt="응원 메시지 스트리밍" width="45%">
 </p>
 
 
