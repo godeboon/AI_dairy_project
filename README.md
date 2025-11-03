@@ -47,13 +47,15 @@
 🔗 전체 프롬프트 로그, 맥락 분류, 응답 생성 흐름을 릴리즈 설명에서 확인할 수 있습니다.
 
 
-## 간단한 시연 영상
+## 🎬 간단한 시연 영상
 
 <p align="center">
-  <img src="letter_glow.gif" alt="응원 메시지 생성" width="45%">
+  👉 아래 링크에서 실제 동작 영상을 확인할 수 있습니다.  
+  <br>
+  <a href="https://www.youtube.com/watch?v=xn00xh4i_V4" target="_blank">
+    🔗 [YouTube 시연 영상 바로가기]
+  </a>
 </p>
-
-
 
 ---
 
@@ -195,28 +197,28 @@ class MixtralClient:
 
 ## 4. 기술 스택
 
-### Backend Framework
+### ▶ Backend Framework
 - **FastAPI**: 고성능 비동기 웹 프레임워크
 - **SQLAlchemy**: ORM을 통한 데이터베이스 관리
 - **Pydantic**: 데이터 검증 및 직렬화
 
-### AI & Machine Learning
+### ▶ AI & Machine Learning
 - **OpenAI GPT-4**: 고급 자연어 처리 및 다이어리 생성
 - **LangChain**: AI 애플리케이션 개발 프레임워크
 - **Sentence Transformers**: 텍스트 임베딩 생성
 - **ChromaDB**: 벡터 데이터베이스 (Dense 검색)
 
-### Database & Search
+### ▶ Database & Search
 - **SQLite**: 개발 환경 데이터베이스
 - **FTS5**: SQLite Full-Text Search (Sparse 검색)
 - **Redis**: 캐싱 및 실시간 메시지 브로커
 
-### Real-time Communication
+### ▶ Real-time Communication
 - **WebSocket**: 실시간 양방향 통신
 - **Redis Pub/Sub**: 실시간 알림 및 이벤트 처리
 - **Server-Sent Events**: 실시간 데이터 스트리밍
 
-### Task Queue & Background Jobs
+### ▶ Task Queue & Background Jobs
 - **Celery**: 비동기 작업 처리
 - **RabbitMQ**: 메시지 브로커
 
