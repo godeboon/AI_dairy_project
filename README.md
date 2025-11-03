@@ -308,9 +308,6 @@ app/
 ```
 
 
-### 상세 가이드
-- [📖 배포 가이드](DEPLOYMENT.md) - 상세한 배포 과정
-- [🐳 Docker 사용법](DOCKER.md) - Docker 관련 모든 정보
 
 ## 📄 라이선스
 
