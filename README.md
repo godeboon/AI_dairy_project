@@ -49,7 +49,7 @@
 
 ## 🎬 간단한 시연 영상
 
-<p align="center">
+<p>
   👉 아래 링크에서 실제 동작 영상을 확인할 수 있습니다.  
   <br>
   <a href="https://www.youtube.com/watch?v=xn00xh4i_V4" target="_blank">
